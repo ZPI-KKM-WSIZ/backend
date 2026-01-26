@@ -1,0 +1,6 @@
+# Ignore secrets
+/**/.env
+/secrets/*
+
+# Include files
+!/**/README.md
