@@ -25,13 +25,12 @@ logs_dir = Path.joinpath(Path.cwd(), 'logs')
 secrets_dir = Path.joinpath(Path.cwd(), 'logs')
 trusted_roots_url = f"https://raw.githubusercontent.com/ZPI-KKM-WSIZ/backend/refs/heads/master/trusted_roots.json"
 
-# Keys
-priv_coord_key_path = Path.joinpath(project_root, "secrets", server_id)
-pub_coord_key_path = Path.joinpath(project_root, "secrets", server_id + ".pub")
-
 # Runtime variables
 coordination_mode = False
 coordination_config = None
+# Keys
+priv_coord_key_path = None
+pub_coord_key_path = None
 
 
 # Helper functions

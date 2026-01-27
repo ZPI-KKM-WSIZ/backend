@@ -16,6 +16,11 @@ def setup_logger(environment: config.Environment) -> None:
         config.load_prod_logger(logger)
 
 
+def load_key_pair_paths():
+    config.priv_coord_key_path = Path.joinpath(config.project_root, "secrets", config.server_id)
+    config.pub_coord_key_path = Path.joinpath(config.project_root, "secrets", config.server_id + ".pub")
+
+
 def get_github_token() -> str | None:
     github_token = config.github_token
     if github_token is None:
@@ -48,7 +53,8 @@ def get_trusted_roots_local() -> dict:
 def get_trusted_roots_github(github_token: str) -> dict:
     logger.info(f'Downloading trusted roots from {config.trusted_roots_url}')
     req = urllib.request.Request(config.trusted_roots_url)
-    req.add_header("Authorization", f"token {github_token}")
+    if github_token:
+        req.add_header("Authorization", f"token {github_token}")
     req.add_header("Accept", "application/vnd.github.v3.raw")
 
     try:
@@ -62,7 +68,8 @@ def get_trusted_roots_github(github_token: str) -> dict:
 
 
 def get_root_by_key_v1(trusted_root: dict, key: str) -> CoordinationRootV1 | None:
-    for networks in trusted_root.values():
+    for networks in trusted_root.items():
+        if not isinstance(networks, list): continue
         for network in networks:
             for coordination_root in network["coordination_roots"]:
                 if coordination_root['public_key'] == key:
@@ -101,7 +108,7 @@ if __name__ == '__main__':
         logger.info("SERVER_ID not set. Requesting ID form DB.")
         # TODO: Add code to get server ID from DB
 
-    should_run_coordination_mode(trusted_roots)
+    load_key_pair_paths()
 
     if should_run_coordination_mode(trusted_roots):
         config.coordination_mode = True
