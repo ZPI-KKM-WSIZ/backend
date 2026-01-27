@@ -16,6 +16,7 @@ class Environment(Enum):
 # Dotenv configuration
 load_dotenv()
 github_token = os.getenv("GITHUB_TOKEN")
+server_id = os.getenv("SERVER_ID")
 
 # Application configuration
 env = Environment.development
@@ -27,6 +28,10 @@ trusted_roots_url = f"https://raw.githubusercontent.com/ZPI-KKM-WSIZ/backend/ref
 # Keys
 priv_coord_key_path = Path.joinpath(project_root, "secrets", server_id)
 pub_coord_key_path = Path.joinpath(project_root, "secrets", server_id + ".pub")
+
+# Runtime variables
+coordination_mode = False
+coordination_config = None
 
 
 # Helper functions

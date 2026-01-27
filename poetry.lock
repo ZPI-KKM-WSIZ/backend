@@ -87,7 +87,7 @@ pydantic = ">=2.12.4,<3.0.0"
 type = "git"
 url = "https://github.com/ZPI-KKM-WSIZ/contracts"
 reference = "master"
-resolved_reference = "9b6f4082225de3a0589b9ef4a206e488c8f263b5"
+resolved_reference = "c0f823d277066a66a8688a7fa82622eeca9cdb61"
 
 [[package]]
 name = "dotenv"
