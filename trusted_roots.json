@@ -1,16 +1,18 @@
 {
-  "networks": {
-    "network_id": "test-network",
-    "coordination_roots": [
-      {
-        "node_id": "aa7ef324-26f4-4339-a89e-f916b8ef8541",
-        "description": "Test Coordination Root",
-        "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEPrhm4EGZ2Lq58M1vrS7UJnIGjdYIxRsc4ZJY7pncpu aa7ef324-26f4-4339-a89e-f916b8ef8541",
-        "endpoints": [
-          "http://192.168.107.37/aa7ef324-26f4-4339-a89e-f916b8ef8541"
-        ]
-      }
-    ],
-    "shard_definition_version": 1
-  }
+  "networks": [
+    {
+      "network_id": "test-network",
+      "coordination_roots": [
+        {
+          "node_id": "aa7ef324-26f4-4339-a89e-f916b8ef8541",
+          "description": "Test Coordination Root",
+          "public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEPrhm4EGZ2Lq58M1vrS7UJnIGjdYIxRsc4ZJY7pncpu aa7ef324-26f4-4339-a89e-f916b8ef8541",
+          "endpoints": [
+            "http://192.168.107.37/aa7ef324-26f4-4339-a89e-f916b8ef8541"
+          ],
+          "shard_definition_version": "1.0.0"
+        }
+      ]
+    }
+  ]
 }
