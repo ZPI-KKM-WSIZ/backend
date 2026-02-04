@@ -12,7 +12,8 @@ dependencies = [
     "uvicorn (>=0.40.0,<0.41.0)",
     "contracts @ git+https://github.com/ZPI-KKM-WSIZ/contracts@master",
     "loguru (>=0.7.3,<0.8.0)",
-    "dotenv (>=0.9.9,<0.10.0)"
+    "dotenv (>=0.9.9,<0.10.0)",
+    "pydantic-settings (>=2.12.0,<3.0.0)"
 ]
 
 [tool.poetry]
