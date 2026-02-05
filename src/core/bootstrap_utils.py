@@ -23,7 +23,7 @@ def get_github_token() -> str | None:
 def get_trusted_roots(environment: Environment, use_local: bool = None,
                       github_token: SecretStr | None = None) -> dict:
     if use_local is None:
-        if environment == Environment.development:
+        if environment == Environment.DEVELOPMENT:
             use_local = True
         else:
             use_local = False
@@ -94,7 +94,7 @@ def setup_logger(environment: Environment, logs_dir: Path) -> None:
     """
     logger.remove()
 
-    if environment == Environment.development:
+    if environment == Environment.DEVELOPMENT:
         logger.add(
             sys.stdout,
             level="DEBUG",

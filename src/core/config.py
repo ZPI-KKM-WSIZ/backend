@@ -12,12 +12,17 @@ CORE_DIR = Path(__file__).resolve().parent
 SRC_DIR = CORE_DIR.parent
 PROJECT_ROOT_DEFAULT = SRC_DIR.parent
 
-
-# --- Settings Classes ---
+# --- Enums ---
 
 class Environment(Enum):
-    production = "production"
-    development = "development"
+    PRODUCTION = "production"
+    DEVELOPMENT = "development"
+
+class OperatingMode(Enum):
+    DATA = "data"
+    COORDINATION = "coordination"
+
+# --- Settings Classes ---
 
 
 class AppSettings(BaseSettings):
@@ -25,7 +30,7 @@ class AppSettings(BaseSettings):
     Immutable Configuration loaded from Env/Defaults.
     """
     APP_NAME: str = "Sensor Coordination Node"
-    ENVIRONMENT: Environment = Environment.production
+    ENVIRONMENT: Environment = Environment.PRODUCTION
 
     # Infrastructure
     TRUSTED_ROOTS_URL: str = "https://raw.githubusercontent.com/ZPI-KKM-WSIZ/backend/refs/heads/master/trusted_roots.json"
@@ -62,7 +67,7 @@ class RuntimeState:
     """
     Mutable Application State (Changed during runtime).
     """
-    coordination_mode: bool = False
+    operating_mode: OperatingMode = OperatingMode.DATA
     coordination_config: CoordinationRootV1 | None = None
     server_id: str | None = None
     private_key_path: Path | None = None

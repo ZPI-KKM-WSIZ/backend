@@ -2,6 +2,7 @@ from loguru import logger
 
 from src.core import config
 from src.core.bootstrap_utils import get_trusted_roots, get_github_token, should_run_coordination_mode, setup_logger
+from src.core.config import OperatingMode
 
 if __name__ == '__main__':
     # Initial setup
@@ -31,11 +32,12 @@ if __name__ == '__main__':
 
     # Run
     if should_run_coordination_mode(trusted_roots):
-        state.coordination_mode = True
+        state.operating_mode = OperatingMode.COORDINATION
         logger.debug("Found trusted root entry matching this node's public key")
         logger.debug("Loaded configuration: {}", state.coordination_config)
         logger.info("Starting in coordination mode.")
         # TODO: Add code to start coordination server
     else:
-        logger.info("Starting in backend mode")
+        state.operating_mode = OperatingMode.DATA
+        logger.info("Starting in data backend mode")
         # TODO: Add code to start data backend server
