@@ -1,7 +1,8 @@
 from loguru import logger
 
 from src.core import config
-from src.core.bootstrap_utils import get_trusted_roots, get_github_token, should_run_coordination_mode, setup_logger
+from src.core.bootstrap_utils import get_trusted_roots, get_github_token, should_run_coordination_mode, setup_logger, \
+    get_app_version
 from src.core.config import OperatingMode
 
 if __name__ == '__main__':
@@ -28,7 +29,8 @@ if __name__ == '__main__':
         logger.info("SERVER_ID not set. Requesting ID form DB.")
         # TODO: Add code to get server ID from DB
 
-    config.state.load_identity(server_id=server_id, secrets_dir=settings.SECRETS_DIR)
+    config.state.load_identity(server_id=server_id, app_version=get_app_version(settings.PROJECT_ROOT),
+                               secrets_dir=settings.SECRETS_DIR)
 
     # Run
     if should_run_coordination_mode(trusted_roots):

@@ -74,10 +74,12 @@ class RuntimeState:
     server_id: str | None = None
     private_key_path: Path | None = None
     public_key_path: Path | None = None
+    app_version: str | None = None
 
-    def load_identity(self, server_id: str, secrets_dir: Path):
+    def load_identity(self, server_id: str, app_version, secrets_dir: Path):
         """Explicitly load identity and compute paths"""
         self.server_id = server_id
+        self.app_version = app_version
         private_key_path = secrets_dir / server_id
         public_key_path = secrets_dir / f"{server_id}.pub"
 
@@ -92,7 +94,9 @@ class RuntimeState:
         logger.debug("Loaded node identity: {}", dict({
             "id": server_id,
             "public-key-path": str(public_key_path),
-            "private-key-path": str(private_key_path)}))
+            "private-key-path": str(private_key_path),
+            "app-version": self.app_version
+        }))
 
 
 # --- Singletons ---
