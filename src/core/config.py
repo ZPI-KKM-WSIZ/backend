@@ -7,10 +7,12 @@ from loguru import logger
 from pydantic import SecretStr, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 # --- Root Calculation ---
 CORE_DIR = Path(__file__).resolve().parent
 SRC_DIR = CORE_DIR.parent
 PROJECT_ROOT_DEFAULT = SRC_DIR.parent
+
 
 # --- Enums ---
 
@@ -22,8 +24,8 @@ class OperatingMode(Enum):
     DATA = "data"
     COORDINATION = "coordination"
 
-# --- Settings Classes ---
 
+# --- Settings Classes ---
 
 class AppSettings(BaseSettings):
     """
