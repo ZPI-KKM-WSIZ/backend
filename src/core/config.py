@@ -7,11 +7,14 @@ from loguru import logger
 from pydantic import SecretStr, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 # --- Root Calculation ---
-CORE_DIR = Path(__file__).resolve().parent
-SRC_DIR = CORE_DIR.parent
-PROJECT_ROOT_DEFAULT = SRC_DIR.parent
+CORE_DIR_DEFAULT = Path(__file__).resolve().parent
+SRC_DIR_DEFAULT = CORE_DIR_DEFAULT.parent
+NODE_MODE_DEFAULT = CORE_DIR_DEFAULT / "node_mode"
+COORDINATION_DEFAULT = NODE_MODE_DEFAULT / "coordination"
+DATA_BACKEND_DEFAULT = NODE_MODE_DEFAULT / "data_backend"
+SHARED_DEFAULT = NODE_MODE_DEFAULT / "shared"
+PROJECT_ROOT_DEFAULT = SRC_DIR_DEFAULT.parent
 
 
 # --- Enums ---
@@ -20,12 +23,41 @@ class Environment(Enum):
     PRODUCTION = "production"
     DEVELOPMENT = "development"
 
+
 class OperatingMode(Enum):
     DATA = "data"
     COORDINATION = "coordination"
 
 
 # --- Settings Classes ---
+
+class PathConfig(BaseSettings):
+    """
+    Groups all path-related configurations.
+    """
+    PROJECT_ROOT: Path = Field(default=PROJECT_ROOT_DEFAULT)
+    CORE_DIR: Path = Field(default=CORE_DIR_DEFAULT)
+    SRC_DIR: Path = Field(default=SRC_DIR_DEFAULT)
+    NODE_MODE: Path = Field(default=NODE_MODE_DEFAULT)
+    COORDINATION: Path = Field(default=COORDINATION_DEFAULT)
+    DATA_BACKEND: Path = Field(default=DATA_BACKEND_DEFAULT)
+    SHARED: Path = Field(default=SHARED_DEFAULT)
+
+    LOGS_DIR: Path | None = None
+    SECRETS_DIR: Path | None = None
+
+    model_config = SettingsConfigDict(env_file=SRC_DIR_DEFAULT / ".env", extra="ignore")
+
+    def model_post_init(self, __context):
+        """Ensure dependent paths are set relative to PROJECT_ROOT and create dirs."""
+        if self.LOGS_DIR is None:
+            self.LOGS_DIR = self.PROJECT_ROOT / 'logs'
+        if self.SECRETS_DIR is None:
+            self.SECRETS_DIR = self.PROJECT_ROOT / 'secrets'
+
+        self.LOGS_DIR.mkdir(parents=True, exist_ok=True)
+        self.SECRETS_DIR.mkdir(parents=True, exist_ok=True)
+
 
 class AppSettings(BaseSettings):
     """
@@ -46,22 +78,9 @@ class AppSettings(BaseSettings):
     COORD_PRIV_KEY_PATH: Path | None = None
 
     # Paths
-    PROJECT_ROOT: Path = Field(default=PROJECT_ROOT_DEFAULT)
+    paths: PathConfig = Field(default_factory=PathConfig)
 
-    LOGS_DIR: Path | None = None
-    SECRETS_DIR: Path | None = None
-
-    model_config = SettingsConfigDict(env_file=SRC_DIR / ".env", extra="ignore")
-
-    def model_post_init(self, __context):
-        """Ensure dependent paths are set correctly relative to the final PROJECT_ROOT"""
-        if self.LOGS_DIR is None:
-            self.LOGS_DIR = self.PROJECT_ROOT / 'logs'
-        if self.SECRETS_DIR is None:
-            self.SECRETS_DIR = self.PROJECT_ROOT / 'secrets'
-
-        self.LOGS_DIR.mkdir(parents=True, exist_ok=True)
-        self.SECRETS_DIR.mkdir(parents=True, exist_ok=True)
+    model_config = SettingsConfigDict(env_file=SRC_DIR_DEFAULT / ".env", extra="ignore")
 
 
 @dataclass
@@ -84,7 +103,6 @@ class RuntimeState:
         public_key_path = secrets_dir / f"{server_id}.pub"
 
         if private_key_path.exists() and public_key_path.exists():
-
             self.private_key_path = private_key_path
             self.public_key_path = public_key_path
         else:

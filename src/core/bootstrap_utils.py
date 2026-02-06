@@ -36,7 +36,7 @@ def get_trusted_roots(environment: Environment, use_local: bool = None,
 
 
 def get_trusted_roots_local() -> dict:
-    trust_roots_file_path = Path.joinpath(settings.PROJECT_ROOT, 'trusted_roots.json')
+    trust_roots_file_path = Path.joinpath(settings.paths.PROJECT_ROOT, 'trusted_roots.json')
     logger.info("Fetching trusted roots from local file: {}", trust_roots_file_path)
 
     with open(trust_roots_file_path, "r") as f:
@@ -45,7 +45,7 @@ def get_trusted_roots_local() -> dict:
 
 
 def get_trusted_roots_github(github_token: SecretStr | None = None) -> dict:
-    trusted_roots_url = settings.TRUSTED_ROOTS_URL
+    trusted_roots_url = settings.paths.TRUSTED_ROOTS_URL
     logger.info('Fetching trusted roots from url: {}', trusted_roots_url)
 
     req = urllib.request.Request(trusted_roots_url)

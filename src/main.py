@@ -12,7 +12,7 @@ if __name__ == '__main__':
     state = config.state
 
     env = settings.ENVIRONMENT
-    setup_logger(env, settings.LOGS_DIR)
+    setup_logger(env, settings.paths.LOGS_DIR)
 
     logger.debug(f'Using environment: {env}')
 
@@ -29,8 +29,8 @@ if __name__ == '__main__':
         logger.info("SERVER_ID not set. Requesting ID form DB.")
         # TODO: Add code to get server ID from DB
 
-    config.state.load_identity(server_id=server_id, app_version=get_app_version(settings.PROJECT_ROOT),
-                               secrets_dir=settings.SECRETS_DIR)
+    config.state.load_identity(server_id=server_id, app_version=get_app_version(settings.paths.PROJECT_ROOT),
+                               secrets_dir=settings.paths.SECRETS_DIR)
 
     # Run
     if should_run_coordination_mode(trusted_roots):
