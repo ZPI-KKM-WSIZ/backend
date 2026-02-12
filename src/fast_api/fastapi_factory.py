@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from src.fast_api import router
+from src.fast_api.router import router
 from src.fast_api.fastapi_settings import FastAPIAppSettings
 
 
@@ -19,6 +19,6 @@ def create_fastapi_app(fastapi_settings: FastAPIAppSettings) -> FastAPI:
         servers=fastapi_settings.servers
     )
 
-    app.include_router(router.router)
+    app.include_router(router)
 
     return app

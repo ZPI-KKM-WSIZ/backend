@@ -31,16 +31,7 @@ class PathConfig(BaseSettings):
     FASTAPI_DIR: Path = Field(default=FASTAPI_DIR_DEFAULT)
     PROJECT_ROOT: Path = Field(default=PROJECT_ROOT_DEFAULT)
 
-    LOGS_DIR: Path | None = None
-
     model_config = SettingsConfigDict(env_file=SRC_DIR_DEFAULT / ".env", extra="ignore")
-
-    def model_post_init(self, __context):
-        """Ensure dependent paths are set relative to PROJECT_ROOT and create dirs."""
-        if self.LOGS_DIR is None:
-            self.LOGS_DIR = self.PROJECT_ROOT / 'logs'
-
-        self.LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 class CassandraConfig(BaseSettings):

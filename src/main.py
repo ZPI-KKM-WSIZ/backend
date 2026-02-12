@@ -13,7 +13,7 @@ if __name__ == '__main__':
     state = config.state
 
     env = settings.ENVIRONMENT
-    setup_logger(env, settings.paths.LOGS_DIR)
+    setup_logger(env)
 
     logger.debug(f'Using environment: {env}')
 
