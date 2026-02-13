@@ -1,0 +1,42 @@
+services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: zpi-tailscale-prod
+    hostname: ${BACKEND_HOSTNAME}
+    restart: always
+    environment:
+      - TS_AUTHKEY=${TAILSCALE_AUTH_KEY_PROD}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_EXTRA_ARGS=--advertise-tags=tag:prod,tag:backend
+    volumes:
+      - tailscale-data:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    networks:
+      - zpi-node-net
+
+
+  backend:
+    build: .
+    container_name: zpi-backend-prod
+    restart: always
+    env_file: ./src/.env
+    network_mode: "service:tailscale"
+    depends_on:
+      - tailscale
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: zpi-tunnel-prod
+    restart: always
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - zpi-node-net
+
+networks:
+  zpi-node-net:
+    driver: bridge

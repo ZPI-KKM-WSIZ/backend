@@ -1,0 +1,10 @@
+services:
+  backend:
+    build: .
+    container_name: zpi-backend-dev
+    restart: always
+    env_file: ./src/.env
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
