@@ -2,8 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
-from loguru import logger
-from pydantic import SecretStr, Field
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # --- Root Calculation ---
@@ -78,7 +77,7 @@ class RuntimeState:
         self.server_id = server_id
         self.app_version = app_version
 
-        logger.debug("Loaded node identity: {}", dict({
+        logging.debug("Loaded node identity: {}", dict({
             "id": server_id,
             "app-version": self.app_version
         }))
