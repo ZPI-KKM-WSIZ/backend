@@ -82,11 +82,18 @@ class TailscaleService:
                 if ipv4_addr:
                     cassandra_nodes.append(ipv4_addr)
 
-        logging.info(f"Found {len(cassandra_nodes)} online Cassandra nodes")
-
         recommended_contact_point_count = 3
         k = min(len(cassandra_nodes), recommended_contact_point_count)
         res = random.sample(cassandra_nodes, k)
+
+        if len(res) == 0:
+            logging.error("No viable Cassandra nodes found")
+            return []
+        elif len(res) < recommended_contact_point_count:
+            logging.warning(f"Only {len(res)} Cassandra contact points selected, "
+                            f"recommended amount: {recommended_contact_point_count}")
+        else:
+            logging.info(f"Found {len(cassandra_nodes)} online Cassandra nodes")
 
         logging.debug(f"Selected contact points for Cassandra: {res}")
         return res

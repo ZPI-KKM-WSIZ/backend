@@ -33,12 +33,15 @@ if __name__ == '__main__':
                                          client_secret=env_config.tailscale_secrets.TAILSCALE_API_CLIENT_SECRET,
                                          tailnet_id=env_config.tailscale_secrets.TAILNET_ID,
                                          environment=working_env)
+    logging.info(f"Tailscale service initialized")
 
     # Load Cassandra configuration
     cassandra_config = CassandraConfig.from_settings(
         contact_points=tailscale_service.get_cassandra_contact_points(),
         settings=env_config.cassandra_settings
     )
+    logging.info(f"Cassandra config loaded")
+    logging.debug(f"Cassandra config: {cassandra_config}")
 
     logging.info("Starting the app")
 
