@@ -3,7 +3,7 @@ import ssl
 from pydantic import SecretStr, BaseModel
 from typing import Any
 
-from src.core.env_config import CassandraSettings
+from src.core.env_configuration import CassandraSettings
 
 
 class CassandraConfig(BaseModel):

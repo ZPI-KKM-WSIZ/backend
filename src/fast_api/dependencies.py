@@ -1,8 +1,8 @@
 from fastapi import Request, Depends
 
-from src.core.env_config import EnvConfig
-from src.core.cassandra_config import CassandraConfig
-from src.core.identity_config import IdentityConfig
+from src.core.env_configuration import EnvConfig
+from src.core.cassandra_configuration import CassandraConfig
+from src.core.identity_configuration import IdentityConfig
 from src.fast_api.services.identity import IdentityService
 
 

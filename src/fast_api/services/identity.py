@@ -1,4 +1,4 @@
-from src.core.identity_config import IdentityConfig
+from src.core.identity_configuration import IdentityConfig
 
 
 class IdentityService:

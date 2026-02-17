@@ -4,13 +4,13 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from src.core.env_config import get_env_config
+from src.core.env_configuration import get_env_config
 from src.core.environment import Environment
 from src.fast_api.fastapi_settings import FastAPIAppSettings
 from src.core.bootstrap_utils import get_app_version
-from src.core.cassandra_config import CassandraConfig
-from src.core.identity_config import IdentityConfig
-from src.core.logger_config import setup_logger
+from src.core.cassandra_configuration import CassandraConfig
+from src.core.identity_configuration import IdentityConfig
+from src.core.logger_configuration import setup_logger
 from src.core.tailscale_service import TailscaleService
 from src.fast_api.router import router
 
@@ -42,11 +42,11 @@ def create_fastapi_app() -> FastAPI:
         logging.info(f"Tailscale service initialized")
 
         # Load Cassandra configuration
-        cassandra_settings = CassandraConfig.from_settings(
+        cassandra_config = CassandraConfig.from_settings(
             contact_points=tailscale_service.get_cassandra_contact_points(),
             settings=env_values.cassandra_settings)
         logging.info(f"Cassandra config loaded")
-        logging.debug(f"Cassandra config: {cassandra_settings}")
+        logging.debug(f"Cassandra config: {cassandra_config}")
 
         # FastAPI setup
         logging.info("Setting up FastAPI")
@@ -66,7 +66,7 @@ def create_fastapi_app() -> FastAPI:
         # Set fastapi dependencies
         app.state.identity = identity
         app.state.env_config = env_values
-        app.state.cassandra_config = cassandra_settings
+        app.state.cassandra_config = cassandra_config
 
         logging.info("Starting the app")
         yield
