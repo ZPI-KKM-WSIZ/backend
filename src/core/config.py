@@ -32,14 +32,11 @@ class PathConfig(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=SRC_DIR_DEFAULT / ".env", extra="ignore")
 
-
-class CassandraConfig(BaseSettings):
-    """Configuration for Cassandra database connection."""
-    CONTACT_POINTS: list[str] = Field(default_factory=lambda: ["cassandra"])
-    PORT: int | int = 9042
-    KEYSPACE: str = "air_info"
-    USERNAME: str | None = None
-    PASSWORD: SecretStr | None = None
+class TailscaleSecrets(BaseSettings):
+    """Groups Cassandra's secrets."""
+    TAILSCALE_API_CLIENT_ID: SecretStr = Field('TAILSCALE_API_CLIENT_ID')
+    TAILSCALE_API_CLIENT_SECRET: SecretStr = Field('TAILSCALE_API_CLIENT_SECRET')
+    TAILNET_ID: SecretStr = Field('TAILNET')
 
     model_config = SettingsConfigDict(env_file=SRC_DIR_DEFAULT / ".env", extra="ignore")
 
@@ -59,7 +56,7 @@ class AppSettings(BaseSettings):
 
     # Paths
     paths: PathConfig = Field(default_factory=PathConfig)
-    cassandra: CassandraConfig = Field(default_factory=CassandraConfig)
+    tailscale_secrets: TailscaleSecrets = Field(default_factory=TailscaleSecrets)
 
     model_config = SettingsConfigDict(env_file=SRC_DIR_DEFAULT / ".env", extra="ignore")
 
