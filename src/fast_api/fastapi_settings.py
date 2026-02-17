@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic import BaseModel
 from typing_extensions import Any, Self
 
 
@@ -103,7 +103,7 @@ class FastAPIAppSettingsBuilder:
         return FastAPIAppSettings(**data)
 
 
-class FastAPIAppSettings(BaseSettings):
+class FastAPIAppSettings(BaseModel):
     """Configuration for the FastAPI module instance."""
     # Metadata
     title: str
