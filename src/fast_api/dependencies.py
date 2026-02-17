@@ -1,6 +1,7 @@
 from fastapi import Request, Depends
 
 from src.core.database_repositories import Repositories
+from fast_api.services.readings import ReadingsService
 from src.core.env_configuration import EnvConfig
 from src.core.cassandra_configuration import CassandraConfig
 from src.core.identity_configuration import IdentityConfig
@@ -30,3 +31,8 @@ def get_repositories(request: Request) -> Repositories:
 def get_identity_service(identity: IdentityConfig = Depends(get_identity)) -> IdentityService:
     """Create InfoService with injected dependencies"""
     return IdentityService(identity)
+
+
+def get_readings_service(repositories: Repositories = Depends(get_repositories)) -> ReadingsService:
+    """Create ReadingsService with injected dependencies"""
+    return ReadingsService(repositories.readings_repository)
