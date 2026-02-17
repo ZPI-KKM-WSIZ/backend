@@ -21,6 +21,6 @@ def get_env_config_from_app(request: Request) -> EnvConfig:
     return request.app.state.env_config
 
 
-def get_info_service(identity: IdentityConfig = Depends(get_identity)) -> IdentityService:
+def get_identity_service(identity: IdentityConfig = Depends(get_identity)) -> IdentityService:
     """Create InfoService with injected dependencies"""
     return IdentityService(identity)
