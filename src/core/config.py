@@ -39,7 +39,7 @@ class PathConfig(BaseSettings):
 
 
 class TailscaleSecrets(BaseSettings):
-    """Groups Cassandra's secrets."""
+    """Groups Tailscale's secrets."""
     TAILSCALE_API_CLIENT_ID: SecretStr
     TAILSCALE_API_CLIENT_SECRET: SecretStr
     TAILNET_ID: SecretStr
