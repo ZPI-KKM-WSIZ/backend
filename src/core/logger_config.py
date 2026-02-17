@@ -10,6 +10,10 @@ def setup_logger(environment: Environment) -> None:
     """
     Accepts config arguments explicitly rather than relying on global state.
     """
+    logger = logging.getLogger()
+
+    if logger.handlers:
+        return
 
     handler = colorlog.StreamHandler(sys.stderr)
     handler.setFormatter(colorlog.ColoredFormatter(
@@ -26,7 +30,6 @@ def setup_logger(environment: Environment) -> None:
             'CRITICAL': 'bold_red',
         }
     ))
-    logger = logging.getLogger()
     logger.addHandler(handler)
 
     if environment == Environment.PRODUCTION:
