@@ -3,7 +3,7 @@ from pathlib import Path
 
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing_extensions import Any
+from typing import Any
 
 from src.core.environment import Environment
 

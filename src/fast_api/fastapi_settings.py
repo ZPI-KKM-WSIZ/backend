@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing_extensions import Any, Self
+from typing import Any, Self
 
 
 class FastAPIAppSettingsBuilder:
