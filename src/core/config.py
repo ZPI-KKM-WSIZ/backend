@@ -1,4 +1,3 @@
-import logging
 import typing
 from dataclasses import dataclass
 from enum import Enum
@@ -80,11 +79,6 @@ class RuntimeState:
         """Explicitly load identity and compute paths"""
         self.server_id = server_id
         self.app_version = app_version
-
-        logging.debug("Loaded node identity: {}", dict({
-            "id": server_id,
-            "app-version": self.app_version
-        }))
 
     def load_cassandra_config(self, cassandra_config: CassandraConfig):
         self.cassandra_config = cassandra_config

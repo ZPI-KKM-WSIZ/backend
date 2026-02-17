@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 import uvicorn
 
@@ -20,21 +21,20 @@ if __name__ == '__main__':
     logging.debug(f'Using environment: {env}')
 
     # Load identity
-    server_id = settings.SERVER_ID
-    if server_id is None:
-        logging.info("SERVER_ID not set. Requesting ID form DB.")
-        # TODO: Add code to get server ID from DB
+    server_id = uuid.uuid4()
+    logging.info(f"Server id set to {server_id}")
 
     config.state.load_identity(server_id=server_id, app_version=get_app_version(settings.paths.PROJECT_ROOT))
+    logging.debug(f"Loaded node identity: {{id: {state.server_id}, app-version: {state.app_version}}}")
 
     logging.info("Starting the app")
 
     # Set FastAPI variables
     fastapi_settings = FastAPIAppSettings(
-        title=f"Air info node: {settings.SERVER_ID}",
+        title=f"Air info node: {server_id}",
         version=state.app_version,
-        summary=f"FastAPI module of node {settings.SERVER_ID}",
-        description=f"This module provides an API for node {settings.SERVER_ID}."
+        summary=f"FastAPI module of node {server_id}",
+        description=f"This module provides an API for node {server_id}."
                     f"Responsible handling incoming sensor data.",
         root_path=""
     )
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     # Start the FastAPI server using Uvicorn
     if app:
         logging.info("FastAPI server starting on port 8000")
-        uvicorn.run(app, host="0.0.0.0", port=8000)
+        uvicorn.run(app, host="0.0.0.0", port=8000, log_config=None)
     else:
         logging.error("Failed to initialize FastAPI application")
         exit(1)
