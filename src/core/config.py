@@ -41,9 +41,9 @@ class PathConfig(BaseSettings):
 
 class TailscaleSecrets(BaseSettings):
     """Groups Cassandra's secrets."""
-    TAILSCALE_API_CLIENT_ID: SecretStr = Field('TAILSCALE_API_CLIENT_ID')
-    TAILSCALE_API_CLIENT_SECRET: SecretStr = Field('TAILSCALE_API_CLIENT_SECRET')
-    TAILNET_ID: SecretStr = Field('TAILNET')
+    TAILSCALE_API_CLIENT_ID: SecretStr
+    TAILSCALE_API_CLIENT_SECRET: SecretStr
+    TAILNET_ID: SecretStr
 
     model_config = SettingsConfigDict(env_file=SRC_DIR_DEFAULT / ".env", extra="ignore")
 
