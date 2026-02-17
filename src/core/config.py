@@ -1,4 +1,5 @@
 import logging
+import typing
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -6,7 +7,8 @@ from pathlib import Path
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from src.core.cassandra_config import CassandraConfig
+if typing.TYPE_CHECKING:
+    from src.core.cassandra_config import CassandraConfig
 
 # --- Root Calculation ---
 CORE_DIR_DEFAULT = Path(__file__).resolve().parent
