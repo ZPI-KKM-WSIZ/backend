@@ -1,4 +1,3 @@
-from enum import Enum
 from functools import lru_cache
 from pathlib import Path
 
@@ -6,20 +5,14 @@ from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing_extensions import Any
 
+from src.core.environment import Environment
+
 # --- Root Calculation ---
 CORE_DIR_DEFAULT = Path(__file__).resolve().parent
 SRC_DIR_DEFAULT = CORE_DIR_DEFAULT.parent
 FASTAPI_DIR_DEFAULT = SRC_DIR_DEFAULT / "fast_api"
 PROJECT_ROOT_DEFAULT = SRC_DIR_DEFAULT.parent
 ENV_FILE_PATH = SRC_DIR_DEFAULT / ".env"
-
-
-# --- Enums ---
-
-class Environment(Enum):
-    PRODUCTION = "production"
-    DEVELOPMENT = "development"
-    TESTING = "testing"
 
 
 # --- Settings Classes ---
@@ -44,6 +37,7 @@ class TailscaleSecrets(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=ENV_FILE_PATH, extra="ignore")
 
+
 class CassandraSettings(BaseSettings):
     """Groups Cassandra's settings."""
     USERNAME: str | None = None
@@ -59,6 +53,7 @@ class CassandraSettings(BaseSettings):
     KEYSPACE: str = "air_info"
 
     model_config = SettingsConfigDict(env_file=ENV_FILE_PATH, extra="ignore")
+
 
 class EnvConfig(BaseSettings):
     """
