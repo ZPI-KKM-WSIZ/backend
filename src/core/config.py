@@ -1,9 +1,12 @@
+import logging
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from src.core.cassandra_config import CassandraConfig
 
 # --- Root Calculation ---
 CORE_DIR_DEFAULT = Path(__file__).resolve().parent
@@ -17,6 +20,7 @@ PROJECT_ROOT_DEFAULT = SRC_DIR_DEFAULT.parent
 class Environment(Enum):
     PRODUCTION = "production"
     DEVELOPMENT = "development"
+    TESTING = "testing"
 
 
 # --- Settings Classes ---
@@ -32,6 +36,7 @@ class PathConfig(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=SRC_DIR_DEFAULT / ".env", extra="ignore")
 
+
 class TailscaleSecrets(BaseSettings):
     """Groups Cassandra's secrets."""
     TAILSCALE_API_CLIENT_ID: SecretStr = Field('TAILSCALE_API_CLIENT_ID')
@@ -46,12 +51,11 @@ class AppSettings(BaseSettings):
     Immutable Configuration loaded from Env/Defaults.
     """
     # Identity
-    SERVER_ID: str | None = None
     APP_NAME: str = "Air info Node"
     ENVIRONMENT: Environment = Environment.PRODUCTION
 
     # Infrastructure
-    API_BASE_URL: str = "http://localhost"  # FIXME: Change to url once we have the endpoint.
+    API_BASE_URL: str
     API_PORT: int = 8000
 
     # Paths
@@ -68,6 +72,7 @@ class RuntimeState:
     """
     server_id: str | None = None
     app_version: str | None = None
+    cassandra_config: CassandraConfig | None = None
 
     def load_identity(self, server_id: str, app_version: str):
         """Explicitly load identity and compute paths"""
@@ -78,6 +83,9 @@ class RuntimeState:
             "id": server_id,
             "app-version": self.app_version
         }))
+
+    def load_cassandra_config(self, cassandra_config: CassandraConfig):
+        self.cassandra_config = cassandra_config
 
 
 # --- Singletons ---
