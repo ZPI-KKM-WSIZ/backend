@@ -69,7 +69,7 @@ class TailscaleService:
             addresses = device.get('addresses', [])
 
             has_cassandra_tag = any('cassandra' in tag for tag in tags)
-            environment_str = self.environment.value
+            environment_str = "prod" if self.environment.value == Environment.PRODUCTION else "test"
             environment_match = any(environment_str in tag for tag in tags)
 
             logging.debug(f"{hostname}: tags={tags}, "
