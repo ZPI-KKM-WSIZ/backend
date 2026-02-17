@@ -1,5 +1,6 @@
 from fastapi import Request, Depends
 
+from src.core.database_repositories import Repositories
 from src.core.env_configuration import EnvConfig
 from src.core.cassandra_configuration import CassandraConfig
 from src.core.identity_configuration import IdentityConfig
@@ -19,6 +20,11 @@ def get_cassandra_config(request: Request) -> CassandraConfig:
 def get_env_config_from_app(request: Request) -> EnvConfig:
     """Get env config from the app state"""
     return request.app.state.env_config
+
+
+def get_repositories(request: Request) -> Repositories:
+    """Get env config from the app state"""
+    return request.app.state.repositories
 
 
 def get_identity_service(identity: IdentityConfig = Depends(get_identity)) -> IdentityService:

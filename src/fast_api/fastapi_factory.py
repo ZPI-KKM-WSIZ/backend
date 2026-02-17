@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from src.core.database_repositories import Repositories
 from src.core.env_configuration import get_env_config
 from src.core.environment import Environment
 from src.fast_api.fastapi_settings import FastAPIAppSettings
@@ -13,6 +14,9 @@ from src.core.identity_configuration import IdentityConfig
 from src.core.logger_configuration import setup_logger
 from src.core.tailscale_service import TailscaleService
 from src.fast_api.router import router
+from tests.mock_database_repositories import MockBackendRepository, MockErrorRepository, MockFederationRepository, \
+    MockLocationRepository, MockReadingsRepository, MockSensorRepository, MockSensorStatusRepository, \
+    MockVersionRepository, MockBaseRepository
 
 
 def create_fastapi_app() -> FastAPI:
@@ -48,6 +52,20 @@ def create_fastapi_app() -> FastAPI:
         logging.info(f"Cassandra config loaded")
         logging.debug(f"Cassandra config: {cassandra_config}")
 
+        # Load Database repositories
+        repositories = Repositories(
+            backend_repository=MockBackendRepository(),
+            base_repository=MockBaseRepository(),
+            error_repository=MockErrorRepository(),
+            federation_repository=MockFederationRepository(),
+            location_repository=MockLocationRepository(),
+            readings_repository=MockReadingsRepository(),
+            sensor_repository=MockSensorRepository(),
+            sensor_status_repository=MockSensorStatusRepository(),
+            version_repository=MockVersionRepository(),
+        )
+        logging.debug(f"Loaded database repos: {repositories}")
+
         # FastAPI setup
         logging.info("Setting up FastAPI")
         fastai_settings = FastAPIAppSettings(
@@ -67,6 +85,7 @@ def create_fastapi_app() -> FastAPI:
         app.state.identity = identity
         app.state.env_config = env_values
         app.state.cassandra_config = cassandra_config
+        app.state.repositories = repositories
 
         logging.info("Starting the app")
         yield
