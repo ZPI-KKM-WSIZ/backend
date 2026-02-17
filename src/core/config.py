@@ -5,6 +5,7 @@ from pathlib import Path
 
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing_extensions import Any
 
 if typing.TYPE_CHECKING:
     from src.core.cassandra_config import CassandraConfig
@@ -46,6 +47,21 @@ class TailscaleSecrets(BaseSettings):
 
     model_config = SettingsConfigDict(env_file=SRC_DIR_DEFAULT / ".env", extra="ignore")
 
+class CassandraSettings(BaseSettings):
+    """Groups Cassandra's settings."""
+    USERNAME: str | None = None
+    PASSWORD: SecretStr | None = None
+    COMPRESSION: bool | str = False
+    LOCAL_DATACENTER: str | None = None
+    CONNECT_TIMEOUT: float = 5.0
+    REQUEST_TIMEOUT: float = 10.0
+    SSL_CONTEXT: str | None = None
+    SSL_OPTIONS: dict[str, Any] | None = None
+    PROTOCOL_VERSION: int = 66
+    PORT: int | int = 9042
+    KEYSPACE: str = "air_info"
+
+    model_config = SettingsConfigDict(env_file=SRC_DIR_DEFAULT / ".env", extra="ignore")
 
 class AppSettings(BaseSettings):
     """
@@ -62,6 +78,7 @@ class AppSettings(BaseSettings):
     # Paths
     paths: PathConfig = Field(default_factory=PathConfig)
     tailscale_secrets: TailscaleSecrets = Field(default_factory=TailscaleSecrets)
+    cassandra_settings: CassandraSettings = Field(default_factory=CassandraSettings)
 
     model_config = SettingsConfigDict(env_file=SRC_DIR_DEFAULT / ".env", extra="ignore")
 

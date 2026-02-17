@@ -73,16 +73,16 @@ def get_cassandra_contact_points() -> list[str]:
 
 class CassandraConfig(BaseSettings):
     """Configuration for Cassandra database connection."""
-    contact_points: list[str] = get_cassandra_contact_points()
+    contact_points: list[str]
     username: str | None = None
     password: SecretStr | None = None
     compression: bool | str
     local_datacenter: str | None = None
-    connect_timeout: float = 5.0
-    request_timeout: float = 10.0
+    connect_timeout: float
+    request_timeout: float
     ssl_context: ssl.SSLContext | None = None
     ssl_options: dict[str, Any] | None = None
-    compression: bool | str = True
-    protocol_version: int = 66
-    port: int | int = 9042
-    keyspace: str = "air_info"
+    compression: bool | str
+    protocol_version: int
+    port: int
+    keyspace: str
