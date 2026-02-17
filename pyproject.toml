@@ -12,7 +12,8 @@ dependencies = [
     "uvicorn (>=0.40.0,<0.41.0)",
     "contracts @ git+https://github.com/ZPI-KKM-WSIZ/contracts@master",
     "dotenv (>=0.9.9,<0.10.0)",
-    "pydantic-settings (>=2.12.0,<3.0.0)"
+    "pydantic-settings (>=2.12.0,<3.0.0)",
+    "colorlog (>=6.10.1,<7.0.0)"
 ]
 
 [tool.poetry]

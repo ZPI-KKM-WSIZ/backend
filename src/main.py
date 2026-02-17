@@ -10,12 +10,12 @@ from src.fast_api.fastapi_settings import FastAPIAppSettings
 
 if __name__ == '__main__':
     # Initial setup
-    logging.info("Loading application configuration")
     settings = config.settings
     state = config.state
 
     env = settings.ENVIRONMENT
     setup_logger(env)
+    logging.info("Application configuration loaded")
 
     logging.debug(f'Using environment: {env}')
 
