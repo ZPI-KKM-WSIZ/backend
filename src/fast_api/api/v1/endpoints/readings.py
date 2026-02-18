@@ -7,7 +7,7 @@ from fast_api.services.readings import ReadingsService
 readings_router = APIRouter(prefix="/api/v1")
 
 
-@readings_router.post("/send_reading", response_model=SensorReading)
+@readings_router.post("/readings", response_model=SensorReading)
 async def send_reading(reading: SensorReadingDTO,
                        readings_service: ReadingsService = Depends(get_readings_service)
                        ):
