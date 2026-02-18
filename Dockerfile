@@ -21,20 +21,20 @@ COPY pyproject.toml poetry.lock ./
 # Configure Poetry to create the virtual environment in the project folder
 RUN poetry config virtualenvs.in-project true
 
-# Install dependencies
-# Replace https with ssh
-RUN git config --global url."git@github.com:".insteadOf "https://github.com/"
-# --mount=type=ssh: Exposes the host's SSH agent/keys to this RUN command only
-# mkdir -p ...: Adds GitHub to known_hosts to prevent "Host key verification failed"
-RUN --mount=type=ssh \
-    mkdir -p -m 0600 ~/.ssh && \
-    ssh-keyscan github.com >> ~/.ssh/known_hosts && \
-    poetry install --only main --no-root
+RUN --mount=type=cache,target=/root/.cache \
+    --mount=type=secret,id=env \
+    GITHUB_TOKEN=$(grep '^GITHUB_TOKEN=' /run/secrets/env | cut -d'=' -f2-| tr -d '"') && \
+    echo "https://oauth2:${GITHUB_TOKEN}@github.com" > /root/.git-credentials && \
+    git config --global credential.helper store && \
+    poetry install --no-root --only main --no-interaction --no-ansi && \
+    rm -f /root/.git-credentials
 
 #=====================
 # Stage 2: Runtime
 #=====================
-FROM python:3.14-slim AS runtime
+FROM python:3.14.0-slim AS runtime
+ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONPATH="/app/src"
 
 # Create a non-root user for security
 RUN groupadd -g 999 appuser && \
