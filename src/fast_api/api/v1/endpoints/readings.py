@@ -15,3 +15,13 @@ async def send_reading(reading: SensorReadingDTO,
     reading_data_model: SensorReading = readings_service.convert_dto_to_db_model(reading)
     await readings_service.add_reading_to_db(reading_data_model)
     return reading_data_model
+
+
+@readings_router.post("/readings/bulk", response_model=SensorReading)
+async def send_reading(readings: list[SensorReadingDTO],
+                       readings_service: ReadingsService = Depends(get_readings_service)
+                       ):
+    """Process reading and forward to the database"""
+    reading_data_models = readings_service.convert_dto_to_db_model_bulk(readings)
+    await readings_service.add_reading_to_db_bulk(reading_data_models)
+    return reading_data_models
