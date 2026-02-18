@@ -1,8 +1,8 @@
 from contracts import SensorReadingDTO, SensorReading
 from fastapi import APIRouter, Depends
 
-from src.fast_api.dependencies import get_readings_service
-from src.fast_api.services.readings import ReadingsService
+from fast_api.dependencies import get_readings_service
+from fast_api.services.readings import ReadingsService
 
 readings_router = APIRouter(prefix="/api/v1")
 

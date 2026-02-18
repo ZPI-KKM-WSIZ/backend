@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from src.fast_api.api.v1.endpoints.readings import readings_router
-from src.fast_api.api.v1.endpoints.health import health_router
+from fast_api.api.v1.endpoints.readings import readings_router
+from fast_api.api.v1.endpoints.health import health_router
 
 router = APIRouter()
 

@@ -3,7 +3,7 @@ import sys
 
 import colorlog
 
-from src.core.environment import Environment
+from core.environment import Environment
 
 
 def setup_logger(environment: Environment) -> None:

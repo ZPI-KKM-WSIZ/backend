@@ -6,7 +6,7 @@ from urllib.request import urlopen, Request
 
 from pydantic import SecretStr
 
-from src.core.environment import Environment
+from core.environment import Environment
 
 
 class TailscaleService:

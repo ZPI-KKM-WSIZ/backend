@@ -5,17 +5,17 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from fast_api.exception_handler import add_exception_handlers
-from src.core.database_repositories import Repositories
-from src.core.env_configuration import get_env_config
-from src.core.environment import Environment
-from src.fast_api.fastapi_settings import FastAPIAppSettings
-from src.core.bootstrap_utils import get_app_version
-from src.core.cassandra_configuration import CassandraConfig
-from src.core.identity_configuration import IdentityConfig
-from src.core.logger_configuration import setup_logger
-from src.core.tailscale_service import TailscaleService
-from src.fast_api.router import router
-from src.core.mock_database_repositories import MockBackendRepository, MockErrorRepository, MockFederationRepository, \
+from core.database_repositories import Repositories
+from core.env_configuration import get_env_config
+from core.environment import Environment
+from fast_api.fastapi_settings import FastAPIAppSettings
+from core.bootstrap_utils import get_app_version
+from core.cassandra_configuration import CassandraConfig
+from core.identity_configuration import IdentityConfig
+from core.logger_configuration import setup_logger
+from core.tailscale_service import TailscaleService
+from fast_api.router import router
+from core.mock_database_repositories import MockBackendRepository, MockErrorRepository, MockFederationRepository, \
     MockLocationRepository, MockReadingsRepository, MockSensorRepository, MockSensorStatusRepository, \
     MockVersionRepository, MockBaseRepository
 

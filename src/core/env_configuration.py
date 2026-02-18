@@ -5,7 +5,7 @@ from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Any
 
-from src.core.environment import Environment
+from core.environment import Environment
 
 # --- Root Calculation ---
 CORE_DIR_DEFAULT = Path(__file__).resolve().parent

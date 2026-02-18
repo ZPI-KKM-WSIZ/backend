@@ -1,11 +1,11 @@
 from fastapi import Request, Depends
 
-from src.core.database_repositories import Repositories
+from core.database_repositories import Repositories
 from fast_api.services.readings import ReadingsService
-from src.core.env_configuration import EnvConfig
-from src.core.cassandra_configuration import CassandraConfig
-from src.core.identity_configuration import IdentityConfig
-from src.fast_api.services.identity import IdentityService
+from core.env_configuration import EnvConfig
+from core.cassandra_configuration import CassandraConfig
+from core.identity_configuration import IdentityConfig
+from fast_api.services.identity import IdentityService
 
 
 def get_identity(request: Request) -> IdentityConfig:

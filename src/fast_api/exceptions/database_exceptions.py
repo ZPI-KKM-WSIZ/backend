@@ -1,6 +1,6 @@
 from contracts import SensorReading
 
-from src.fast_api.exceptions.base_exception import AppBaseException
+from fast_api.exceptions.base_exception import AppBaseException
 
 
 class GenericDatabaseException(AppBaseException):

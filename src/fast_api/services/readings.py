@@ -3,7 +3,7 @@ import uuid
 
 from contracts import SensorReadingDTO, SensorReading, IReadingsRepository
 
-from src.fast_api.exceptions.database_exceptions import ReadingInsertException
+from fast_api.exceptions.database_exceptions import ReadingInsertException
 
 
 class ReadingsService:

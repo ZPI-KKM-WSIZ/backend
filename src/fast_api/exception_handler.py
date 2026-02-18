@@ -1,7 +1,7 @@
 from fastapi import Request
 from starlette.responses import JSONResponse
 
-from src.fast_api.exceptions.base_exception import AppBaseException
+from fast_api.exceptions.base_exception import AppBaseException
 
 
 def add_exception_handlers(app):
