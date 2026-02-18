@@ -1,6 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
 
+from cassandra import ProtocolVersion
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Any
@@ -43,12 +44,12 @@ class CassandraSettings(BaseSettings):
     USERNAME: str | None = None
     PASSWORD: SecretStr | None = None
     COMPRESSION: bool | str = False
-    LOCAL_DATACENTER: str | None = None
+    LOCAL_DATACENTER: str | None = "datacenter1"
     CONNECT_TIMEOUT: float = 5.0
     REQUEST_TIMEOUT: float = 10.0
     SSL_CONTEXT: str | None = None
     SSL_OPTIONS: dict[str, Any] | None = None
-    PROTOCOL_VERSION: int = 66
+    PROTOCOL_VERSION: int = ProtocolVersion.V4
     PORT: int = 9042
     KEYSPACE: str = "air_info"
 
@@ -60,8 +61,10 @@ class EnvConfig(BaseSettings):
     Immutable Configuration loaded from Env/Defaults.
     """
     # Identity
+    SERVER_ID: str
     APP_NAME: str = "Air info Node"
     ENVIRONMENT: Environment = Environment.PRODUCTION
+    USE_CASSANDRA: bool = True
 
     # Infrastructure
     API_BASE_URL: str

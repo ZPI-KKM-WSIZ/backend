@@ -28,6 +28,7 @@ services:
       - TAILNET_ID=${TAILNET_ID}
       - TAILSCALE_API_CLIENT_ID=${TAILSCALE_API_CLIENT_ID}
       - TAILSCALE_API_CLIENT_SECRET=${TAILSCALE_API_CLIENT_SECRET}
+      - SERVER_ID=${SERVER_ID}
     network_mode: service:tailscale
     depends_on:
       - tailscale

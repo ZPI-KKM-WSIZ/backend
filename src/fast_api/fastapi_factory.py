@@ -1,23 +1,24 @@
 import logging
-import uuid
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from federation_repository import FederationRepository
+from location_repository import LocationRepository
+from readings_repository import ReadingsRepository
+from sensor_repository import SensorRepository
+from token_repository import TokenRepository
 
-from fast_api.exception_handler import add_exception_handlers
+from core.bootstrap_utils import get_app_version
+from core.cassandra_service import CassandraConfig, CassandraService
 from core.database_repositories import Repositories
 from core.env_configuration import get_env_config
 from core.environment import Environment
-from fast_api.fastapi_settings import FastAPIAppSettings
-from core.bootstrap_utils import get_app_version
-from core.cassandra_configuration import CassandraConfig
 from core.identity_configuration import IdentityConfig
 from core.logger_configuration import setup_logger
 from core.tailscale_service import TailscaleService
+from fast_api.exception_handler import add_exception_handlers
+from fast_api.fastapi_settings import FastAPIAppSettings
 from fast_api.router import router
-from core.mock_database_repositories import MockBackendRepository, MockErrorRepository, MockFederationRepository, \
-    MockLocationRepository, MockReadingsRepository, MockSensorRepository, MockSensorStatusRepository, \
-    MockVersionRepository, MockBaseRepository
 
 
 def create_fastapi_app() -> FastAPI:
@@ -33,13 +34,12 @@ def create_fastapi_app() -> FastAPI:
         logging.debug(f'Using environment: {working_env}')
 
         # Load identity
-        server_id = str(uuid.uuid4())
+        server_id = env_values.SERVER_ID
         identity = IdentityConfig(server_id=server_id,
                                   app_version=get_app_version(env_values.paths.PROJECT_ROOT))
         logging.info(f"Server id set to {server_id}")
         logging.debug(f"Loaded node identity: {identity}")
 
-        # Load Tailscale configuration
         tailscale_service = TailscaleService(client_id=env_values.tailscale_secrets.TAILSCALE_API_CLIENT_ID,
                                              client_secret=env_values.tailscale_secrets.TAILSCALE_API_CLIENT_SECRET,
                                              tailnet_id=env_values.tailscale_secrets.TAILNET_ID,
@@ -48,28 +48,31 @@ def create_fastapi_app() -> FastAPI:
 
         # Load Cassandra configuration
         cassandra_config = CassandraConfig.from_settings(
-            contact_points=tailscale_service.get_cassandra_contact_points(),
+            contact_points=await tailscale_service.get_cassandra_contact_points(),
             settings=env_values.cassandra_settings)
         logging.info(f"Cassandra config loaded")
         logging.debug(f"Cassandra config: {cassandra_config}")
 
+        cassandra_service = CassandraService(cassandra_config)
+
         # Load Database repositories
+        session = cassandra_service.session
         repositories = Repositories(
-            backend_repository=MockBackendRepository(),
-            base_repository=MockBaseRepository(),
-            error_repository=MockErrorRepository(),
-            federation_repository=MockFederationRepository(),
-            location_repository=MockLocationRepository(),
-            readings_repository=MockReadingsRepository(),
-            sensor_repository=MockSensorRepository(),
-            sensor_status_repository=MockSensorStatusRepository(),
-            version_repository=MockVersionRepository(),
+            federation_repository=FederationRepository(session),
+            location_repository=LocationRepository(session),
+            readings_repository=ReadingsRepository(session),
+            sensor_repository=SensorRepository(session),
+            token_repository=TokenRepository(session),
         )
+
+        # Set fastapi dependency
+        app.state.cassandra_config = cassandra_config
+
         logging.debug(f"Loaded database repos: {repositories}")
 
         # FastAPI setup
         logging.info("Setting up FastAPI")
-        fastai_settings = FastAPIAppSettings(
+        fastapi_settings = FastAPIAppSettings(
             title=f"Air info node: {server_id}",
             version=identity.app_version,
             summary=f"FastAPI module of node {server_id}",
@@ -77,15 +80,14 @@ def create_fastapi_app() -> FastAPI:
         )
 
         # Set fastapi settings
-        app.title = fastai_settings.title
-        app.version = fastai_settings.version
-        app.summary = fastai_settings.summary
-        app.description = fastai_settings.description
+        app.title = fastapi_settings.title
+        app.version = fastapi_settings.version
+        app.summary = fastapi_settings.summary
+        app.description = fastapi_settings.description
 
         # Set fastapi dependencies
         app.state.identity = identity
         app.state.env_config = env_values
-        app.state.cassandra_config = cassandra_config
         app.state.repositories = repositories
 
         logging.info("Starting the app")
