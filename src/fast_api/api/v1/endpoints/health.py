@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from fast_api.dependencies import get_identity_service
-from fast_api.services.identity import IdentityService
+from fast_api.services.identity_service import IdentityService
 
 health_router = APIRouter(prefix="/api/v1")
 
