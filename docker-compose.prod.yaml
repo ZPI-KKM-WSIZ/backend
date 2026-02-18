@@ -20,9 +20,16 @@ services:
 
   backend:
     build: .
+    image: zpi-kkm-backend:${APP_VERSION}
     container_name: zpi-backend-prod
     restart: always
     env_file: ./src/.env
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT}
+      - API_BASE_URL=${API_BASE_URL}
+      - TAILNET_ID=${TAILNET_ID}
+      - TAILSCALE_API_CLIENT_ID=${TAILSCALE_API_CLIENT_ID}
+      - TAILSCALE_API_CLIENT_SECRET=${TAILSCALE_API_CLIENT_SECRET}
     network_mode: "service:tailscale"
     depends_on:
       - tailscale
@@ -36,6 +43,8 @@ services:
       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     networks:
       - zpi-node-net
+    depends_on:
+      - backend
 
 networks:
   zpi-node-net:
