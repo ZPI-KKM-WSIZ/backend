@@ -1,6 +1,9 @@
+import logging
 import uuid
 
 from contracts import SensorReadingDTO, SensorReading, IReadingsRepository
+
+from src.fast_api.exceptions.database_exceptions import ReadingInsertException
 
 
 class ReadingsService:
@@ -24,9 +27,9 @@ class ReadingsService:
             temperature=reading.sensors.temperature,
         )
 
-    async def add_reading_to_db(self, reading: SensorReading) -> str | bool:
+    async def add_reading_to_db(self, reading: SensorReading) -> None:
         try:
             await self.readings_repo.save(reading)
-            return True
         except Exception as e:
-            return f"Error saving reading: {str(e)}"
+            logging.error(f"Failed to save reading: {e}")
+            raise ReadingInsertException(message=f"Failed to save reading: {e}", reading=reading)
