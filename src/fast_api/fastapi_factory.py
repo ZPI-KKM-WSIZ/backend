@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from fast_api.exception_handler import add_exception_handlers
 from src.core.database_repositories import Repositories
 from src.core.env_configuration import get_env_config
 from src.core.environment import Environment
@@ -92,5 +93,6 @@ def create_fastapi_app() -> FastAPI:
 
     app = FastAPI(lifespan=lifespan, debug=(env_values.ENVIRONMENT == Environment.DEVELOPMENT))
     app.include_router(router)
+    add_exception_handlers(app)
 
     return app
