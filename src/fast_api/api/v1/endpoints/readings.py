@@ -17,7 +17,7 @@ async def send_reading(reading: SensorReadingDTO,
     return reading_data_model
 
 
-@readings_router.post("/readings/bulk", response_model=SensorReading)
+@readings_router.post("/readings/bulk", response_model=list[SensorReading])
 async def send_reading(readings: list[SensorReadingDTO],
                        readings_service: ReadingsService = Depends(get_readings_service)
                        ):
