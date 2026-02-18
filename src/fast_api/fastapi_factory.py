@@ -14,7 +14,7 @@ from src.core.identity_configuration import IdentityConfig
 from src.core.logger_configuration import setup_logger
 from src.core.tailscale_service import TailscaleService
 from src.fast_api.router import router
-from tests.mock_database_repositories import MockBackendRepository, MockErrorRepository, MockFederationRepository, \
+from src.core.mock_database_repositories import MockBackendRepository, MockErrorRepository, MockFederationRepository, \
     MockLocationRepository, MockReadingsRepository, MockSensorRepository, MockSensorStatusRepository, \
     MockVersionRepository, MockBaseRepository
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 from typing import Generic, TypeVar
 from uuid import UUID
@@ -37,7 +38,7 @@ class MockBaseRepository(IRepository, Generic[T]):
 
     async def save(self, entity: T) -> T:
         key = getattr(entity, "id", None)
-        print(f"[MOCK SAVE] Would upsert entity into DB: {entity!r} (key={key!r})")
+        logging.debug(f"[MOCK SAVE] Would upsert entity into DB: {entity!r} (key={key!r})")
         self.storage[key] = entity
         return entity
 
@@ -47,7 +48,7 @@ class MockBackendRepository(MockBaseRepository[Backend], IBackendRepository):
         return self.storage.get(entity_id)
 
     async def delete(self, entity_id: UUID) -> None:
-        print(f"[MOCK DELETE] backend id={entity_id}")
+        logging.debug(f"[MOCK DELETE] backend id={entity_id}")
         self.storage.pop(entity_id, None)
 
     async def get_paginated(
@@ -64,7 +65,7 @@ class MockBackendRepository(MockBaseRepository[Backend], IBackendRepository):
         shard_id: UUID,
         limit: int = 100,
     ) -> list[Backend]:
-        print(f"[MOCK QUERY] get_by_shard shard_id={shard_id} limit={limit}")
+        logging.debug(f"[MOCK QUERY] get_by_shard shard_id={shard_id} limit={limit}")
         return list(self.storage.values())[:limit]
 
 
@@ -91,7 +92,7 @@ class MockErrorRepository(MockBaseRepository[Error], IErrorRepository):
         return results
 
     async def delete_before_date(self, backend_id: UUID, before: datetime) -> None:
-        print(f"[MOCK DELETE] errors backend_id={backend_id} before={before.isoformat()}")
+        logging.debug(f"[MOCK DELETE] errors backend_id={backend_id} before={before.isoformat()}")
         to_delete = [
             key for key, e in self.storage.items()
             if getattr(e, "backend_id", None) == backend_id
@@ -104,7 +105,7 @@ class MockErrorRepository(MockBaseRepository[Error], IErrorRepository):
 class MockFederationRepository(MockBaseRepository[Federation], IFederationRepository):
     async def save(self, entity: Federation) -> Federation:
         key = getattr(entity, "token_id", None)
-        print(f"[MOCK SAVE] Would upsert federation: {entity!r} (token_id={key!r})")
+        logging.debug(f"[MOCK SAVE] Would upsert federation: {entity!r} (token_id={key!r})")
         self.storage[key] = entity
         return entity
 
@@ -112,7 +113,7 @@ class MockFederationRepository(MockBaseRepository[Federation], IFederationReposi
         return self.storage.get(token_id)
 
     async def delete(self, token_id: str) -> None:
-        print(f"[MOCK DELETE] federation token_id={token_id}")
+        logging.debug(f"[MOCK DELETE] federation token_id={token_id}")
         self.storage.pop(token_id, None)
 
     async def get_all(self) -> list[Federation]:
@@ -124,7 +125,7 @@ class MockLocationRepository(MockBaseRepository[Location], ILocationRepository):
         return self.storage.get(entity_id)
 
     async def delete(self, entity_id: UUID) -> None:
-        print(f"[MOCK DELETE] location id={entity_id}")
+        logging.debug(f"[MOCK DELETE] location id={entity_id}")
         self.storage.pop(entity_id, None)
 
     async def get_paginated(
@@ -165,7 +166,7 @@ class MockReadingsRepository(MockBaseRepository[SensorReading], IReadingsReposit
         return readings[:limit]
 
     async def delete_before_date(self, sensor_id: UUID, before: datetime) -> None:
-        print(f"[MOCK DELETE] readings sensor_id={sensor_id} before={before.isoformat()}")
+        logging.debug(f"[MOCK DELETE] readings sensor_id={sensor_id} before={before.isoformat()}")
         to_delete = [
             key for key, e in self.storage.items()
             if getattr(e, "sensor_id", None) == sensor_id
@@ -180,7 +181,7 @@ class MockSensorRepository(MockBaseRepository[SensorBoard], ISensorRepository):
         return self.storage.get(sensor_id)
 
     async def delete(self, entity_id: UUID) -> None:
-        print(f"[MOCK DELETE] sensor id={entity_id}")
+        logging.debug(f"[MOCK DELETE] sensor id={entity_id}")
         self.storage.pop(entity_id, None)
 
     async def get_paginated(
@@ -199,14 +200,14 @@ class MockSensorRepository(MockBaseRepository[SensorBoard], ISensorRepository):
         )
 
     async def get_by_backend(self, backend_id: UUID, limit: int = 100) -> list[SensorBoard]:
-        print(f"[MOCK QUERY] sensors by backend backend_id={backend_id} limit={limit}")
+        logging.debug(f"[MOCK QUERY] sensors by backend backend_id={backend_id} limit={limit}")
         return [
             e for e in list(self.storage.values())
             if getattr(e, "backend_id", None) == backend_id
         ][:limit]
 
     async def get_by_location(self, location_id: UUID, limit: int = 100) -> list[SensorBoard]:
-        print(f"[MOCK QUERY] sensors by location location_id={location_id} limit={limit}")
+        logging.debug(f"[MOCK QUERY] sensors by location location_id={location_id} limit={limit}")
         return [
             e for e in list(self.storage.values())
             if getattr(e, "location_id", None) == location_id
@@ -218,7 +219,7 @@ class MockSensorStatusRepository(MockBaseRepository[SensorStatus], ISensorStatus
         return self.storage.get(entity_id)
 
     async def delete(self, entity_id: UUID) -> None:
-        print(f"[MOCK DELETE] sensor_status id={entity_id}")
+        logging.debug(f"[MOCK DELETE] sensor_status id={entity_id}")
         self.storage.pop(entity_id, None)
 
     async def get_all(self) -> list[SensorStatus]:
@@ -230,7 +231,7 @@ class MockShardRepository(MockBaseRepository[Shard], IShardRepository):
         return self.storage.get(entity_id)
 
     async def delete(self, entity_id: UUID) -> None:
-        print(f"[MOCK DELETE] shard id={entity_id}")
+        logging.debug(f"[MOCK DELETE] shard id={entity_id}")
         self.storage.pop(entity_id, None)
 
     async def get_paginated(
@@ -243,7 +244,7 @@ class MockShardRepository(MockBaseRepository[Shard], IShardRepository):
         return items[:page_size], None
 
     async def get_by_parent(self, parent_id: UUID, limit: int = 100) -> list[Shard]:
-        print(f"[MOCK QUERY] shard by parent parent_id={parent_id} limit={limit}")
+        logging.debug(f"[MOCK QUERY] shard by parent parent_id={parent_id} limit={limit}")
         return [
             e for e in list(self.storage.values())
             if getattr(e, "parent_id", None) == parent_id
@@ -258,7 +259,7 @@ class MockShardRoleRepository(MockBaseRepository[ShardRole], IShardRoleRepositor
         return self.storage.get(entity_id)
 
     async def delete(self, entity_id: UUID) -> None:
-        print(f"[MOCK DELETE] shard_role id={entity_id}")
+        logging.debug(f"[MOCK DELETE] shard_role id={entity_id}")
         self.storage.pop(entity_id, None)
 
     async def get_all(self) -> list[ShardRole]:
@@ -270,7 +271,7 @@ class MockVersionRepository(MockBaseRepository[SensorVersion], IVersionRepositor
         return self.storage.get(entity_id)
 
     async def delete(self, entity_id: UUID) -> None:
-        print(f"[MOCK DELETE] version id={entity_id}")
+        logging.debug(f"[MOCK DELETE] version id={entity_id}")
         self.storage.pop(entity_id, None)
 
     async def get_all(self) -> list[SensorVersion]:
