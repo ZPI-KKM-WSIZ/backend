@@ -64,7 +64,6 @@ class EnvConfig(BaseSettings):
     SERVER_ID: str
     APP_NAME: str = "Air info Node"
     ENVIRONMENT: Environment = Environment.PRODUCTION
-    USE_CASSANDRA: bool = True
 
     # Infrastructure
     API_BASE_URL: str

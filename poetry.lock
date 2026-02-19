@@ -43,6 +43,76 @@ idna = ">=2.8"
 trio = ["trio (>=0.31.0) ; python_version < \"3.10\"", "trio (>=0.32.0) ; python_version >= \"3.10\""]
 
 [[package]]
+name = "cassandra-driver"
+version = "3.29.3"
+description = "DataStax Driver for Apache Cassandra"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "cassandra_driver-3.29.3-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:96ad742f5cbfb771df512959ab5de36e248ce9aa2c487fd81c37d5c0a627c094"},
+    {file = "cassandra_driver-3.29.3-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:c935431682557ffcd3efc1c7bcb01b0f6769a1c90751a7154d5e3c905a6a2042"},
+    {file = "cassandra_driver-3.29.3-cp310-cp310-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:54afde4aaa5b55fbc2c075e1c55fb14a5739459428f3bb81f849ad020f7d5bcf"},
+    {file = "cassandra_driver-3.29.3-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:7552fb7189acd06161f8feac7045a387dc9e03b3b9f7dcb5675178906cee792e"},
+    {file = "cassandra_driver-3.29.3-cp310-cp310-win32.whl", hash = "sha256:891a1b6a111a591ad9f1c9e088846848dc9e6be030a6086c8c3aa5d2d837f266"},
+    {file = "cassandra_driver-3.29.3-cp310-cp310-win_amd64.whl", hash = "sha256:29fc241475801872dc27c3dd1a3976373536223dd4fd1c01868ff86bdbbfd48b"},
+    {file = "cassandra_driver-3.29.3-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:0785f6e0986089e922378ae3b64b5f696440aeb595fb84c2cf3ccef220c6ae91"},
+    {file = "cassandra_driver-3.29.3-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:1c241ba08473baf31a333feb59793190d01625541c2368d3bbb0f43a586f1d6a"},
+    {file = "cassandra_driver-3.29.3-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:064bf45d3ca87239e11168c0110676fc64f7fdbddb4bcba9be787b8ad5f6d734"},
+    {file = "cassandra_driver-3.29.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:5f9858b5ccdf75dd89c20d74474b59dd3a2e2f86c7251b310011c46acdef3874"},
+    {file = "cassandra_driver-3.29.3-cp311-cp311-win32.whl", hash = "sha256:84b24f69a7bbe76302330d47422a7fcc1998a6a96ffd414a795d7d95992b49cb"},
+    {file = "cassandra_driver-3.29.3-cp311-cp311-win_amd64.whl", hash = "sha256:26013d768b2ea4728c09144b08c0eb86ad692e85cb15f4e52e3107abca83683c"},
+    {file = "cassandra_driver-3.29.3-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:7a2f371af54cd1d153ef373a733889ebfbcc9c30e00429fc12a2569bad9239e1"},
+    {file = "cassandra_driver-3.29.3-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:3f654b01d8d49f68deedfaff1edcff314e3103d29130b2a034df6c490c522351"},
+    {file = "cassandra_driver-3.29.3-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:facd488c2b9be8bffcad5903566581e96d2863d2ec4bcad7f114d1b2b2f39ad0"},
+    {file = "cassandra_driver-3.29.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:572bd5a01089ab92da12f4f52b32b878547bbc544a798d8cfd042e7fc2601c75"},
+    {file = "cassandra_driver-3.29.3-cp312-cp312-win32.whl", hash = "sha256:63adca0f9219be3fe8789f4aa7b77c5f6a7bf65d6442959db52c653140ca4185"},
+    {file = "cassandra_driver-3.29.3-cp312-cp312-win_amd64.whl", hash = "sha256:9b7032b44769c454e96aa11483bfd167a87ea341268f1075b0ff84f780c910a9"},
+    {file = "cassandra_driver-3.29.3-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:5a0113020d86e8f61c7a2ae3d508720cd036df7462a55926b85dd97ada27e143"},
+    {file = "cassandra_driver-3.29.3-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:2b72312a8b62a905da6133effbba9b0731c8e30af96e10ca77fc5c34532c6827"},
+    {file = "cassandra_driver-3.29.3-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:38216e13d6f2e0d4513a5b8806e70ce4a8f28a82962793a67371582fc2c7141b"},
+    {file = "cassandra_driver-3.29.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:51d6a5390e2454b599500049f0a5c72aa701db155c1e542f9a1157c1c45814b1"},
+    {file = "cassandra_driver-3.29.3-cp313-cp313-win32.whl", hash = "sha256:638047c1f70fb14c9d8f743931d4f4f42aff6793b47afded3097c002ef8c1165"},
+    {file = "cassandra_driver-3.29.3-cp313-cp313-win_amd64.whl", hash = "sha256:27adf8869937461ad08c5fefb47857532e467b408db496db4dbf8b132a4bd623"},
+    {file = "cassandra_driver-3.29.3-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:281f67af1b8df88741eef551afbb49f78e4f366a7ab23e7060a1f0d6ba655752"},
+    {file = "cassandra_driver-3.29.3-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:158f7e5cb894a76a592aa0ca659a8e7c2a57ef603e04c07bbbc289a70e9ac893"},
+    {file = "cassandra_driver-3.29.3-cp39-cp39-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:fcf45725ae1751cb934b9b827a7d9cd899bbd09eb1ad28e2160b4584de35ba77"},
+    {file = "cassandra_driver-3.29.3-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:9abedc832e9a6636741299aae46c032d8c1248b507d8cebbaa2f48ec202904bc"},
+    {file = "cassandra_driver-3.29.3-cp39-cp39-win32.whl", hash = "sha256:2cb72808dfc46c40a6ee352ace181ce3170adde1cfd1447da91709a8cf482e20"},
+    {file = "cassandra_driver-3.29.3-cp39-cp39-win_amd64.whl", hash = "sha256:e1d09691d757f5b1900a98cc3b6cc7d8506683a2188c01eca86545f91edbbaf5"},
+    {file = "cassandra_driver-3.29.3.tar.gz", hash = "sha256:ff6b82ee4533f6fd4474d833e693b44b984f58337173ee98ed76bce08721a636"},
+]
+
+[package.dependencies]
+geomet = ">=1.1"
+
+[package.extras]
+cle = ["cryptography (>=42.0)"]
+graph = ["gremlinpython (==3.4.6)"]
+
+[[package]]
+name = "cassandra-repositories"
+version = "0.1.0"
+description = "Shared repository layer for Cassandra backends"
+optional = false
+python-versions = ">=3.13"
+groups = ["main"]
+files = []
+develop = false
+
+[package.dependencies]
+cassandra-driver = ">=3.29"
+contracts = {git = "https://github.com/ZPI-KKM-WSIZ/contracts.git", rev = "master"}
+pydantic = ">=2.0"
+
+[package.source]
+type = "git"
+url = "https://github.com/TdewT/database.git"
+reference = "python-module-fix"
+resolved_reference = "3e4f096b035b9034dbac01aa2ba16c817a3c585b"
+subdirectory = "repositories"
+
+[[package]]
 name = "click"
 version = "8.3.1"
 description = "Composable command line interface toolkit"
@@ -103,23 +173,9 @@ pydantic = ">=2.12.4,<3.0.0"
 
 [package.source]
 type = "git"
-url = "https://github.com/ZPI-KKM-WSIZ/contracts"
+url = "https://github.com/ZPI-KKM-WSIZ/contracts.git"
 reference = "master"
-resolved_reference = "6c6d9b121f15958db221473ae4af6dde968eb560"
-
-[[package]]
-name = "dotenv"
-version = "0.9.9"
-description = "Deprecated package"
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "dotenv-0.9.9-py2.py3-none-any.whl", hash = "sha256:29cf74a087b31dafdb5a446b6d7e11cbce8ed2741540e2339c69fbef92c94ce9"},
-]
-
-[package.dependencies]
-python-dotenv = "*"
+resolved_reference = "649a4b4b3ebf33933bd6d6efbb06ef98a8fbc80e"
 
 [[package]]
 name = "fastapi"
@@ -144,6 +200,21 @@ typing-inspection = ">=0.4.2"
 all = ["email-validator (>=2.0.0)", "fastapi-cli[standard] (>=0.0.8)", "httpx (>=0.23.0,<1.0.0)", "itsdangerous (>=1.1.0)", "jinja2 (>=3.1.5)", "orjson (>=3.9.3)", "pydantic-extra-types (>=2.0.0)", "pydantic-settings (>=2.0.0)", "python-multipart (>=0.0.18)", "pyyaml (>=5.3.1)", "ujson (>=5.8.0)", "uvicorn[standard] (>=0.12.0)"]
 standard = ["email-validator (>=2.0.0)", "fastapi-cli[standard] (>=0.0.8)", "httpx (>=0.23.0,<1.0.0)", "jinja2 (>=3.1.5)", "pydantic-extra-types (>=2.0.0)", "pydantic-settings (>=2.0.0)", "python-multipart (>=0.0.18)", "uvicorn[standard] (>=0.12.0)"]
 standard-no-fastapi-cloud-cli = ["email-validator (>=2.0.0)", "fastapi-cli[standard-no-fastapi-cloud-cli] (>=0.0.8)", "httpx (>=0.23.0,<1.0.0)", "jinja2 (>=3.1.5)", "pydantic-extra-types (>=2.0.0)", "pydantic-settings (>=2.0.0)", "python-multipart (>=0.0.18)", "uvicorn[standard] (>=0.12.0)"]
+
+[[package]]
+name = "geomet"
+version = "1.1.0"
+description = "Pure Python conversion library for common geospatial data formats"
+optional = false
+python-versions = ">=3.7"
+groups = ["main"]
+files = [
+    {file = "geomet-1.1.0-py3-none-any.whl", hash = "sha256:4372fe4e286a34acc6f2e9308284850bd8c4aa5bc12065e2abbd4995900db12f"},
+    {file = "geomet-1.1.0.tar.gz", hash = "sha256:51e92231a0ef6aaa63ac20c443377ba78a303fd2ecd179dc3567de79f3c11605"},
+]
+
+[package.dependencies]
+click = "*"
 
 [[package]]
 name = "h11"
@@ -330,14 +401,14 @@ typing-extensions = ">=4.14.1"
 
 [[package]]
 name = "pydantic-settings"
-version = "2.13.0"
+version = "2.13.1"
 description = "Settings management using Pydantic"
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "pydantic_settings-2.13.0-py3-none-any.whl", hash = "sha256:d67b576fff39cd086b595441bf9c75d4193ca9c0ed643b90360694d0f1240246"},
-    {file = "pydantic_settings-2.13.0.tar.gz", hash = "sha256:95d875514610e8595672800a5c40b073e99e4aae467fa7c8f9c263061ea2e1fe"},
+    {file = "pydantic_settings-2.13.1-py3-none-any.whl", hash = "sha256:d56fd801823dbeae7f0975e1f8c8e25c258eb75d278ea7abb5d9cebb01b56237"},
+    {file = "pydantic_settings-2.13.1.tar.gz", hash = "sha256:b4c11847b15237fb0171e1462bf540e294affb9b86db4d9aa5c01730bdbe4025"},
 ]
 
 [package.dependencies]
@@ -433,5 +504,5 @@ standard = ["colorama (>=0.4) ; sys_platform == \"win32\"", "httptools (>=0.6.3)
 
 [metadata]
 lock-version = "2.1"
-python-versions = "3.14"
-content-hash = "bd1d28dada943c882d409d855f04d5890f6f2faed7c94a8e8ca6de2d393cdd15"
+python-versions = ">=3.13"
+content-hash = "fbce2d2306b84e9197d7012791d29c1891efa5962ea7d321a254d6fa26b7c73f"

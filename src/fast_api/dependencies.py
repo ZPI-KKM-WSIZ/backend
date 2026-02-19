@@ -35,4 +35,5 @@ def get_identity_service(identity: IdentityConfig = Depends(get_identity)) -> Id
 
 def get_readings_service(repositories: Repositories = Depends(get_repositories)) -> ReadingsService:
     """Create ReadingsService with injected dependencies"""
-    return ReadingsService(repositories.readings_repository)
+    return ReadingsService(repositories.readings_repository, repositories.sensor_repository,
+                           repositories.location_repository)
