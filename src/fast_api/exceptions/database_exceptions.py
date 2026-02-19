@@ -22,12 +22,20 @@ class ReadingInsertException(GenericDatabaseException):
 class ReadingsBulkInsertException(GenericDatabaseException):
     def __init__(self, message: str,
                  readings: list[SensorReading],
+                 saved_readings: list[SensorReading],
                  exception: Exception | None = None,
-                 status_code: int = 500):
+                 status_code: int | None = None):
 
         super().__init__(status_code=status_code, message=message)
         self.readings = readings
+        self.saved_readings = saved_readings
         self.exception = exception
+        if status_code:
+            self.status_code = status_code
+        elif len(saved_readings) > 0:
+            self.status_code = 207
+        else:
+            self.status_code = 500
 
     def to_dict(self):
         base = super().to_dict()
@@ -37,6 +45,14 @@ class ReadingsBulkInsertException(GenericDatabaseException):
             else:
                 base["exception"] = str(self.exception)
 
-        reading_dumps = [reading.model_dump(mode="json") for reading in self.readings]
-        base["reading-dumps"] = reading_dumps
+        reading_dumps_with_satus_codes = []
+        for reading in self.readings:
+            reading_dump = reading.model_dump(mode="json")
+            if reading not in self.saved_readings:
+                status_code = 500
+            else:
+                status_code = 201
+            reading_dumps_with_satus_codes.append({"entity": reading_dump, "status": status_code})
+
+        base["results"] = reading_dumps_with_satus_codes
         return base
