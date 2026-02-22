@@ -1,3 +1,4 @@
+import asyncio
 import ssl
 from typing import Any
 
@@ -7,15 +8,35 @@ from cassandra.policies import DCAwareRoundRobinPolicy, TokenAwarePolicy
 from cassandra.policies import LoadBalancingPolicy
 from pydantic import SecretStr, BaseModel
 
-from core.env_configuration import CassandraSettings
+from core.basic_configuration import CassandraSettings
+from core.network_utils import retry_with_delay_async
 
 
 class CassandraConfig(BaseModel):
     model_config = {"arbitrary_types_allowed": True}
-    """Configuration for Cassandra database connection."""
+
+    """
+    Configuration for Cassandra database connection.
+    
+    Attributes:
+        contact_points: List of Cassandra node IP addresses or hostnames.
+        username: Username for authentication (default: "cassandra").
+        password: Password for authentication (default: "cassandra").
+        compression: Whether to enable protocol compression.
+        load_balancing_policy: Primary load balancing policy class.
+        load_balancing_child_policy: Child policy for load balancing.
+        local_datacenter: Name of the local datacenter for query routing.
+        connect_timeout: Maximum time in seconds to wait for connection.
+        request_timeout: Maximum time in seconds to wait for query execution.
+        ssl_context: Optional SSL context for secure connections.
+        ssl_options: Optional SSL configuration dictionary.
+        protocol_version: Cassandra protocol version to use.
+        port: Port number for Cassandra connections (default: 9042).
+        keyspace: Default keyspace to connect to.
+    """
     contact_points: list[str]
-    username: str | None = None
-    password: SecretStr | None = None
+    username: str = "cassandra"
+    password: SecretStr = SecretStr("cassandra")
     compression: bool | str
     load_balancing_policy: LoadBalancingPolicy = TokenAwarePolicy
     load_balancing_child_policy: LoadBalancingPolicy = DCAwareRoundRobinPolicy
@@ -30,7 +51,16 @@ class CassandraConfig(BaseModel):
 
     @classmethod
     def from_settings(cls, contact_points: list[str], settings: CassandraSettings) -> "CassandraConfig":
-        """Create CassandraConfig from CassandraSettings"""
+        """
+        Create CassandraConfig from CassandraSettings.
+        
+        Args:
+            contact_points: List of Cassandra node addresses.
+            settings: CassandraSettings instance with configuration values.
+            
+        Returns:
+            A new CassandraConfig instance with combined settings.
+        """
         return cls(
             contact_points=contact_points,
             **{k.lower(): v for k, v in settings.model_dump().items()}
@@ -38,6 +68,19 @@ class CassandraConfig(BaseModel):
 
 
 class CassandraService:
+    """
+    Service for managing Cassandra database connections and sessions.
+    
+    This service handles the initialisation and lifecycle of Cassandra
+    cluster connections with proper retry logic and configuration.
+    
+    Attributes:
+        created_from: The configuration used to create this service.
+        auth_provider: Authentication provider for Cassandra.
+        exec_profile: Execution profile with connection policies.
+        cluster: The Cassandra cluster instance.
+        session: Active database session for query execution.
+    """
     created_from: CassandraConfig
     auth_provider: PlainTextAuthProvider
     exec_profile: ExecutionProfile
@@ -46,12 +89,47 @@ class CassandraService:
     session: Session
 
     def __init__(self, config: CassandraConfig):
+        """
+        Initialise the service with configuration.
+        
+        Note: Use the `create()` factory method instead of direct instantiation.
+        
+        Args:
+            config: CassandraConfig instance with connection settings.
+        """
         self.created_from = config
-        self._create_session(config)
 
+    @classmethod
+    async def create(cls, config: CassandraConfig) -> "CassandraService":
+        """
+        Async factory method for creating a CassandraService instance.
+        
+        Args:
+            config: CassandraConfig instance with connection settings.
+            
+        Returns:
+            Initialized CassandraService with active session.
+            
+        Raises:
+            RuntimeError: If connection to Cassandra fails after retries.
+        """
+        instance = cls(config)
+        await instance._create_session(config)
+        return instance
 
-    def _create_session(self, config: CassandraConfig) -> None:
-        """Creates a session using configured policies and parameters"""
+    async def _create_session(self, config: CassandraConfig) -> None:
+        """
+        Creates a session using configured policies and parameters.
+        
+        Establishes connection to the Cassandra cluster with retry logic
+        and configures load balancing, authentication, and execution profiles.
+        
+        Args:
+            config: CassandraConfig instance with connection settings.
+            
+        Raises:
+            RuntimeError: If connection fails after all retry attempts.
+        """
         if config.username and config.password:
             self.auth_provider = PlainTextAuthProvider(
                 username=config.username,
@@ -78,6 +156,9 @@ class CassandraService:
             ssl_options=config.ssl_options,
             execution_profiles={EXEC_PROFILE_DEFAULT: self.exec_profile},
         )
-
         self.cluster = Cluster(**cluster_kwargs)
-        self.session = self.cluster.connect(config.keyspace)
+
+        async def connect_cassandra():
+            return await asyncio.to_thread(self.cluster.connect, config.keyspace)
+
+        self.session = await retry_with_delay_async(async_func=connect_cassandra)

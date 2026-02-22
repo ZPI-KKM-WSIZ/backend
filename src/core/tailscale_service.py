@@ -1,62 +1,111 @@
-import asyncio
-import json
 import logging
 import random
-from urllib.parse import urlencode
-from urllib.request import urlopen, Request
 
+import httpx
 from pydantic import SecretStr
 
 from core.environment import Environment
-from core.network_utils import retry_with_delay
+from core.network_utils import retry_with_delay_async
 
 
 class TailscaleService:
+    """
+    Service for discovering Cassandra contact points via the Tailscale API.
+
+    Uses Tailscale's OAuth flow to authenticate and query devices on the
+    tailnet, filtering for online Cassandra nodes tagged for the current
+    deployment environment.
+
+    Attributes:
+        client_id: OAuth client ID for Tailscale API authentication.
+        client_secret: OAuth client secret for Tailscale API authentication.
+        tailnet_id: The tailnet identifier to query devices from.
+        environment: Deployment environment used to filter relevant nodes.
+    """
+
     def __init__(self, client_id: SecretStr, client_secret: SecretStr, tailnet_id: SecretStr, environment: Environment):
+        """
+        Initialise the Tailscale service.
+
+        Args:
+            client_id: OAuth client ID for Tailscale API authentication.
+            client_secret: OAuth client secret for Tailscale API authentication.
+            tailnet_id: The tailnet identifier to query devices from.
+            environment: Deployment environment used to filter relevant nodes.
+        """
         self.client_id = client_id
         self.client_secret = client_secret
         self.tailnet_id = tailnet_id
         self.environment = environment
 
-    def _get_access_token(self) -> SecretStr:
-        """Exchange OAuth credentials for an access token"""
+    async def get_access_token_async(self) -> SecretStr:
+        """
+        Exchange OAuth credentials for a Tailscale API access token.
 
-        url = 'https://api.tailscale.com/api/v2/oauth/token'
-        data = urlencode({
-            'client_id': self.client_id.get_secret_value(),
-            'client_secret': self.client_secret.get_secret_value(),
-            'grant_type': 'client_credentials'
-        }).encode()
+        Returns:
+            A SecretStr containing the access token.
 
-        req = Request(url, data=data)
-        req.add_header('Content-Type', 'application/x-www-form-urlencoded')
+        Raises:
+            RuntimeError: If the API response does not include an access token.
+        """
 
-        with urlopen(req, timeout=10) as response:
-            result = json.loads(response.read())
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                'https://api.tailscale.com/api/v2/oauth/token',
+                data={
+                    'client_id': self.client_id.get_secret_value(),
+                    'client_secret': self.client_secret.get_secret_value(),
+                    'grant_type': 'client_credentials'
+                },
+                timeout=10,
+            )
+            result = response.json()
             if "access_token" not in result:
                 raise RuntimeError(f"No access token found: {result}")
             return SecretStr(result['access_token'])
 
-    async def get_access_token_async(self) -> SecretStr:
-        return await asyncio.to_thread(self._get_access_token)
+    async def get_devices_async(self, api_key: SecretStr) -> dict:
+        """
+        Fetch all devices registered on the tailnet.
 
-    def _get_devices(self, api_key: SecretStr) -> dict:
-        """Fetch devices from Tailscale API"""
-        url = f'https://api.tailscale.com/api/v2/tailnet/{self.tailnet_id.get_secret_value()}/devices'
+        Args:
+            api_key: A valid Tailscale API access token.
 
-        req = Request(url)
-        req.add_header('Authorization', f'Bearer {api_key.get_secret_value()}')
+        Returns:
+            Dict containing the API response with device data.
 
-        with urlopen(req, timeout=10) as response:
-            data = json.loads(response.read())
+        Raises:
+            RuntimeError: If no device data is returned.
+        """
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f'https://api.tailscale.com/api/v2/tailnet/{self.tailnet_id.get_secret_value()}/devices',
+                headers={'Authorization': f'Bearer {api_key.get_secret_value()}'},
+                timeout=10,
+            )
+            data = response.json()
             if not data:
                 raise RuntimeError("No devices found")
             return data
 
-    async def get_devices_async(self, api_key: SecretStr) -> dict:
-        return await asyncio.to_thread(self._get_devices, api_key)
-
     def _get_viable_ips(self, devices: list[dict]) -> list[str]:
+        """
+        Filter devices and extract IPv4 addresses of viable Cassandra nodes.
+
+        A node is considered viable if it has the 'cassandra' tag, matches
+        the current environment tag, has addresses, and is online.
+
+        Args:
+            devices: List of device dictionaries from the Tailscale API.
+
+        Returns:
+            List of IPv4 addresses of viable Cassandra nodes.
+
+        Raises:
+            RuntimeError: If no viable Cassandra nodes are found.
+        """
+
         viable_nodes = []
         environment_str = "prod" if self.environment == Environment.PRODUCTION else "test"
 
@@ -84,6 +133,16 @@ class TailscaleService:
         return viable_nodes
 
     async def _get_viable_cassandra_nodes(self) -> list[str]:
+        """
+        Authenticate with Tailscale and retrieve viable Cassandra node IPs.
+
+        Returns:
+            List of IPv4 addresses for available Cassandra nodes.
+
+        Raises:
+            RuntimeError: If authentication fails, no devices are returned,
+                          or no viable Cassandra nodes are found.
+        """
 
         api_key = await self.get_access_token_async()
 
@@ -102,10 +161,26 @@ class TailscaleService:
 
     async def get_cassandra_contact_points(self, max_retries: int = 5, base_delay: float = 2.0) -> list[
         str]:
+        """
+        Retrieve a randomised selection of Cassandra contact points with retry logic.
+
+        Fetches viable Cassandra node addresses from Tailscale and randomly
+        samples up to 3 of them. Logs a warning if fewer than 3 are available.
+
+        Args:
+            max_retries: Maximum number of retry attempts for node discovery (default: 5).
+            base_delay: Base delay in seconds between retries (default: 2.0).
+
+        Returns:
+            List of up to 3 Cassandra node IPv4 addresses.
+
+        Raises:
+            RuntimeError: If node discovery fails after all retry attempts.
+        """
         logging.info("Fetching Cassandra contact points from Tailscale API")
 
-        viable_cassandra_nodes = await retry_with_delay(max_retries=max_retries, base_delay=base_delay,
-                                                             async_func=self._get_viable_cassandra_nodes)
+        viable_cassandra_nodes = await retry_with_delay_async(max_retries=max_retries, base_delay=base_delay,
+                                                              async_func=self._get_viable_cassandra_nodes)
 
         recommended_contact_point_count = 3
         k = min(len(viable_cassandra_nodes), recommended_contact_point_count)

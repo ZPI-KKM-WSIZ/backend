@@ -13,7 +13,20 @@ readings_router = APIRouter(prefix="/api/v1")
 async def send_reading(reading: SensorReadingDTO,
                        readings_service: ReadingsService = Depends(get_readings_service)
                        ):
-    """Process reading and forward to the database"""
+    """
+    Process a single sensor reading and store it in the database.
+    
+    Args:
+        reading: The sensor reading data transfer object.
+        readings_service: Injected readings service for processing.
+        
+    Returns:
+        The created SensorReading database model.
+        
+    Raises:
+        ConversionException: If the DTO cannot be converted to a database model.
+        ReadingInsertException: If the reading cannot be saved to the database.
+    """
     logging.debug(f"Received reading: {reading}")
     reading_data_model: SensorReading = await readings_service.convert_dto_to_db_model(reading)
     logging.debug(f"Adding to db: {reading_data_model}")
@@ -23,9 +36,22 @@ async def send_reading(reading: SensorReadingDTO,
 
 @readings_router.post("/readings/bulk", response_model=list[SensorReading], status_code=201)
 async def send_readings_bulk(readings: list[SensorReadingDTO],
-                       readings_service: ReadingsService = Depends(get_readings_service)
-                       ):
-    """Process reading and forward to the database"""
+                             readings_service: ReadingsService = Depends(get_readings_service)
+                             ):
+    """
+    Process multiple sensor readings in bulk and store them in the database.
+    
+    Args:
+        readings: List of sensor reading data transfer objects.
+        readings_service: Injected readings service for processing.
+        
+    Returns:
+        List of created SensorReading database models.
+        
+    Raises:
+        ConversionException: If any DTO cannot be converted to a database model.
+        ReadingsBulkInsertException: If the readings cannot be saved or only partially saved.
+    """
     logging.debug(f"Received bulk readings {readings}")
     reading_data_models = await readings_service.convert_dto_to_db_model_bulk(readings)
     logging.debug(f"Adding to db: {reading_data_models}")

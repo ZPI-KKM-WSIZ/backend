@@ -8,7 +8,18 @@ from core.environment import Environment
 
 def setup_logger(environment: Environment) -> None:
     """
-    Accepts config arguments explicitly rather than relying on global state.
+    Configures the application logger with coloured output and environment-specific levels.
+
+    Sets up a coloured console logger with detailed formatting including timestamps,
+    log levels, and function names. Log level is set based on the environment:
+    - PRODUCTION: INFO level
+    - DEVELOPMENT: DEBUG level
+
+    Args:
+        environment: The deployment environment determining the log level.
+
+    Note:
+        This function is idempotent - it won't add duplicate handlers if called multiple times.
     """
     logger = logging.getLogger()
 

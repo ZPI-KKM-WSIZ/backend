@@ -29,7 +29,22 @@ T = TypeVar("T", bound=BaseModel)
 
 
 def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    """Great-circle distance in kilometres (Haversine formula)."""
+    """
+    Compute the great-circle distance between two points using the Haversine formula.
+
+    All coordinate inputs must be in decimal degrees. The result is always
+    non-negative and represents the shortest path along the Earth's surface.
+
+    Args:
+        lat1: Latitude of the first point, in decimal degrees.
+        lon1: Longitude of the first point, in decimal degrees.
+        lat2: Latitude of the second point, in decimal degrees.
+        lon2: Longitude of the second point, in decimal degrees.
+
+    Returns:
+        Distance in kilometres between the two points.
+    """
+
     R = 6_371.0
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
@@ -43,6 +58,17 @@ def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 
 class MockBaseRepository(IRepository, Generic[T]):
+    """
+    Generic in-memory repository for use in tests and local development.
+
+    Stores entities in a plain dict keyed by their `id` attribute.
+    All operations are synchronous in behaviour but declared async to
+    satisfy the IRepository interface. No data is persisted between runs.
+
+    Attributes:
+        storage: Internal dict mapping entity keys to stored entities.
+    """
+
     def __init__(self) -> None:
         self.storage: dict[object, T] = {}
 
@@ -54,6 +80,13 @@ class MockBaseRepository(IRepository, Generic[T]):
 
 
 class MockFederationRepository(MockBaseRepository[Federation], IFederationRepository):
+    """
+    In-memory test double for IFederationRepository.
+
+    Overrides the default key strategy to use `token_id` instead of `id`,
+    matching the Federation model's natural identifier.
+    """
+
     async def save(self, entity: Federation) -> Federation:
         key = getattr(entity, "token_id", None)
         logging.debug(f"[MOCK SAVE] Would upsert federation: {entity!r} (token_id={key!r})")
@@ -72,6 +105,13 @@ class MockFederationRepository(MockBaseRepository[Federation], IFederationReposi
 
 
 class MockLocationRepository(MockBaseRepository[Location], ILocationRepository):
+    """
+    In-memory test double for ILocationRepository.
+
+    Supports coordinate-based lookup and proximity search via the Haversine
+    formula. Pagination always returns all items with no continuation token.
+    """
+
     async def get_by_id(self, entity_id: UUID) -> Location | None:
         return self.storage.get(entity_id)
 
@@ -118,6 +158,14 @@ class MockLocationRepository(MockBaseRepository[Location], ILocationRepository):
 
 
 class MockReadingsRepository(MockBaseRepository[SensorReading], IReadingsRepository):
+    """
+    In-memory test double for IReadingsRepository.
+
+    Supports bulk save, time-range filtering by sensor, latest-first retrieval,
+    and deletion of readings older than a given timestamp. The `concurrency`
+    and `max_retries` parameters of `save_bulk` are accepted but ignored.
+    """
+
     async def save_bulk(
             self,
             entities: list[SensorReading],
@@ -167,6 +215,13 @@ class MockReadingsRepository(MockBaseRepository[SensorReading], IReadingsReposit
 
 
 class MockSensorRepository(MockBaseRepository[SensorBoard], ISensorRepository):
+    """
+    In-memory test double for ISensorRepository.
+
+    Supports lookup by sensor ID, by token string, and by location ID.
+    Pagination always returns all matching items with no continuation token.
+    """
+
     async def get_by_id(self, sensor_id: UUID) -> SensorBoard | None:
         return self.storage.get(sensor_id)
 
@@ -198,6 +253,14 @@ class MockSensorRepository(MockBaseRepository[SensorBoard], ISensorRepository):
 
 
 class MockTokenRepository(MockBaseRepository[Token], ITokenRepository):
+    """
+    In-memory test double for ITokenRepository.
+
+    Overrides the default key strategy to use the `token` string as the
+    storage key. Supports bulk save, lookup by token, and federation-scoped
+    listing and deletion.
+    """
+
     async def save(self, entity: Token) -> Token:
         key = getattr(entity, "token", None)
         logging.debug(f"[MOCK SAVE] Would upsert token: {entity!r} (token={key!r})")
@@ -238,6 +301,12 @@ class MockTokenRepository(MockBaseRepository[Token], ITokenRepository):
 
 
 class MockVersionRepository(MockBaseRepository[SensorVersion], IVersionRepository):
+    """
+    In-memory test double for IVersionRepository.
+
+    Supports lookup by UUID and retrieval of all stored versions.
+    """
+
     async def get_by_id(self, entity_id: UUID) -> SensorVersion | None:
         return self.storage.get(entity_id)
 
