@@ -1,5 +1,6 @@
 import logging
 import uuid
+from datetime import datetime
 
 from contracts import SensorReadingDTO, SensorReading, IReadingsRepository, ISensorRepository, ILocationRepository
 
@@ -150,3 +151,11 @@ class ReadingsService:
             logging.error(f"Failed to save reading: {e}")
             raise ReadingsBulkInsertException(message=f"Failed to save readings: {e}",
                                               readings=readings, saved_readings=[], exception=e) from e
+
+    async def get_readings_by_id(self, sensor_id: uuid.UUID, start_time: None | datetime = None,
+                                 end_time: None | datetime = None,
+                                 limit: int = 1000) -> list[SensorReading]:
+
+        readings = await self.readings_repo.get_by_sensor(sensor_id, start_time, end_time, limit)
+
+        return readings

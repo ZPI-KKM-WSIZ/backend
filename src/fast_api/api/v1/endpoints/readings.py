@@ -1,4 +1,6 @@
 import logging
+import uuid
+from datetime import datetime
 
 from contracts import SensorReadingDTO, SensorReading
 from fastapi import APIRouter, Depends
@@ -32,6 +34,14 @@ async def send_reading(reading: SensorReadingDTO,
     logging.debug(f"Adding to db: {reading_data_model}")
     await readings_service.add_reading_to_db(reading_data_model)
     return reading_data_model
+
+
+@readings_router.get("/readings", response_model=SensorReading, status_code=201)
+async def get_latest(sensor_id: uuid.UUID, start_time: None | datetime = None, end_time: None | datetime = None,
+                     limit: int = 1000,
+                     readings_service: ReadingsService = Depends(get_readings_service)
+                     ):
+    return await readings_service.get_readings_by_id(sensor_id, start_time, end_time, limit)
 
 
 @readings_router.post("/readings/bulk", response_model=list[SensorReading], status_code=201)
