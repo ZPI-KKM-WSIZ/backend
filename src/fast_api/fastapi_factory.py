@@ -76,27 +76,28 @@ async def build_application_context(env_config: EnvConfig,
     # ============================
     # Load Cassandra configuration
     # ============================
-    if not cassandra_service:
-        cassandra_config = CassandraConfig.from_settings(
-            contact_points=await tailscale_service.get_cassandra_contact_points(),
-            settings=env_config.CASSANDRA)
-        logging.info("Cassandra config loaded")
-        logging.debug(f"Cassandra config: {cassandra_config}")
-
-        cassandra_service = await CassandraService.create(cassandra_config)
-        logging.info("CassandraService initialized")
-        logging.debug(f"CassandraService: {CassandraService}")
+    # if not cassandra_service:
+    #     cassandra_config = CassandraConfig.from_settings(
+    #         contact_points=await tailscale_service.get_cassandra_contact_points(),
+    #         settings=env_config.CASSANDRA)
+    #     logging.info("Cassandra config loaded")
+    #     logging.debug(f"Cassandra config: {cassandra_config}")
+    #
+    #     cassandra_service = await CassandraService.create(cassandra_config)
+    #     logging.info("CassandraService initialized")
+    #     logging.debug(f"CassandraService: {CassandraService}")
 
     # ============================
     # Load Database repositories
     # ============================
     session = cassandra_service.session
+    token_repo = TokenRepository(session)
     repositories = Repositories(
-        federation_repository=FederationRepository(session),
+        federation_repository=FederationRepository(session, token_repo),
         location_repository=LocationRepository(session),
         readings_repository=ReadingsRepository(session),
         sensor_repository=SensorRepository(session),
-        token_repository=TokenRepository(session),
+        token_repository=token_repo,
     )
     logging.info("Repositories loaded")
     logging.debug(f"Loaded database repos: {repositories}")
