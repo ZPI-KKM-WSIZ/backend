@@ -75,9 +75,9 @@ class SensorsService:
         return sensor_board, (location, federation)
 
     async def register_sensor(self, sensor_register_dto: SensorBoardRegisterDTO) -> SensorBoard:
-        db_sensor, (location, version, federation) = await self._sensor_dto_to_db(sensor_register_dto)
+        db_sensor, (location, federation) = await self._sensor_dto_to_db(sensor_register_dto)
         try:
-            await self.sensor_repo.register(entity=db_sensor, location=location, version=version, federation=federation)
+            await self.sensor_repo.register(entity=db_sensor, location=location, federation=federation)
         except Exception as e:
             logging.error(f"Failed to register sensor {db_sensor.id}: {e}")
             raise GenericDatabaseException(message="Sensor registration failed") from e
