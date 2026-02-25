@@ -11,7 +11,6 @@ from contracts.data_models.sensor_board import (
     Location,
     SensorBoard,
     SensorReading,
-    SensorVersion,
     Token,
 )
 from contracts.interfaces.repositories import (
@@ -21,7 +20,6 @@ from contracts.interfaces.repositories import (
     IRepository,
     ISensorRepository,
     ITokenRepository,
-    IVersionRepository,
 )
 from pydantic import BaseModel
 
@@ -86,6 +84,9 @@ class MockFederationRepository(MockBaseRepository[Federation], IFederationReposi
     Overrides the default key strategy to use `token_id` instead of `id`,
     matching the Federation model's natural identifier.
     """
+
+    async def get_or_create_unassigned(self) -> Federation:
+        pass
 
     async def save(self, entity: Federation) -> Federation:
         key = getattr(entity, "token_id", None)
@@ -298,21 +299,3 @@ class MockTokenRepository(MockBaseRepository[Token], ITokenRepository):
     async def delete_by_federation(self, federation_id: UUID, token: str) -> None:
         logging.debug(f"[MOCK DELETE] token by federation federation_id={federation_id} token={token}")
         self.storage.pop(token, None)
-
-
-class MockVersionRepository(MockBaseRepository[SensorVersion], IVersionRepository):
-    """
-    In-memory test double for IVersionRepository.
-
-    Supports lookup by UUID and retrieval of all stored versions.
-    """
-
-    async def get_by_id(self, entity_id: UUID) -> SensorVersion | None:
-        return self.storage.get(entity_id)
-
-    async def delete(self, entity_id: UUID) -> None:
-        logging.debug(f"[MOCK DELETE] version id={entity_id}")
-        self.storage.pop(entity_id, None)
-
-    async def get_all(self) -> list[SensorVersion]:
-        return list(self.storage.values())

@@ -23,17 +23,17 @@ class ReadingsService:
 
     def __init__(self, readings_repo: IReadingsRepository,
                  sensor_repo: ISensorRepository,
-                 location_repository: ILocationRepository):
+                 location_repo: ILocationRepository):
         """
         Args:
             readings_repo: Repository for saving sensor readings.
             sensor_repo: Repository for looking up sensor boards by token.
-            location_repository: Repository for resolving or creating locations.
+            location_repo: Repository for resolving or creating locations.
         """
 
         self.readings_repo = readings_repo
         self.sensor_repo = sensor_repo
-        self.location_repository = location_repository
+        self.location_repository = location_repo
 
     async def convert_dto_to_db_model(self, reading: SensorReadingDTO) -> SensorReading:
         """
@@ -57,10 +57,9 @@ class ReadingsService:
             sensor = await self.sensor_repo.get_by_token(reading.token)
             reading_lat = reading.meta.lat
             reading_lon = reading.meta.lon
-            # FIXME: DB CODE CURRENTLY DOES NOT ALLOW EXACT MATCHES!
-            location = await self.location_repository.find_nearest(target_lat=reading_lat + 1 / 10000,
+            location = await self.location_repository.find_nearest(target_lat=reading_lat,
                                                                    target_lon=reading_lon,
-                                                                   radius_km=1 / 1000, limit=1)
+                                                                   radius_km=1 / 100, limit=1)
             location = location[0] if location else None
 
             if not sensor:

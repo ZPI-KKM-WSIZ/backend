@@ -6,6 +6,7 @@ from core.database_repositories import Repositories
 from core.identity_configuration import IdentityConfig
 from fast_api.services.identity_service import IdentityService
 from fast_api.services.readings_service import ReadingsService
+from fast_api.services.sensors_service import SensorsService
 
 
 def get_identity(request: Request) -> IdentityConfig:
@@ -85,3 +86,18 @@ def get_readings_service(repositories: Repositories = Depends(get_repositories))
     """
     return ReadingsService(repositories.readings_repository, repositories.sensor_repository,
                            repositories.location_repository)
+
+
+def get_sensors_service(repositories: Repositories = Depends(get_repositories)) -> SensorsService:
+    """
+    Create a SensorsService with injected repository dependencies.
+
+    Args:
+        repositories: The Repositories container resolved from app state.
+
+    Returns:
+        A new SensorsService instance.
+    """
+    return SensorsService(repositories.sensor_repository, repositories.location_repository,
+                          repositories.federation_repository,
+                          repositories.token_repository)
