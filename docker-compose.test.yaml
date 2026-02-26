@@ -25,10 +25,14 @@ services:
     environment:
       - ENVIRONMENT=${ENVIRONMENT}
       - API_BASE_URL=${API_BASE_URL}
-      - TAILNET_ID=${TAILNET_ID}
-      - TAILSCALE_API_CLIENT_ID=${TAILSCALE_API_CLIENT_ID}
-      - TAILSCALE_API_CLIENT_SECRET=${TAILSCALE_API_CLIENT_SECRET}
+      - TAILSCALE__TAILNET_ID=${TAILSCALE__TAILNET_ID}
+      - TAILSCALE__TAILSCALE_API_CLIENT_ID=${TAILSCALE__TAILSCALE_API_CLIENT_ID}
+      - TAILSCALE__TAILSCALE_API_CLIENT_SECRET=${TAILSCALE__TAILSCALE_API_CLIENT_SECRET}
       - SERVER_ID=${SERVER_ID}
+      - CASSANDRA__LOCAL_DATACENTER=${CASSANDRA__LOCAL_DATACENTER}
+      - CASSANDRA__USERNAME=${CASSANDRA__USERNAME}
+      - CASSANDRA__PASSWORD=${CASSANDRA__PASSWORD}
+      - CASSANDRA__KEYSPACE=${CASSANDRA__KEYSPACE}
     network_mode: service:tailscale
     depends_on:
       - tailscale
@@ -44,6 +48,7 @@ services:
       - zpi-backend-node-net
     depends_on:
       - backend
+      - tailscale
 
 networks:
   zpi-backend-node-net:
