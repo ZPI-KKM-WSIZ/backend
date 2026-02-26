@@ -1,7 +1,7 @@
 #=====================
 # Stage 1: Builder
 #=====================
-FROM python:3.14.0-slim AS builder
+FROM python:3.13.0-slim AS builder
 
 # Install system dependencies required for building (git is needed for fetching dependencies)
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -32,7 +32,7 @@ RUN --mount=type=cache,target=/root/.cache \
 #=====================
 # Stage 2: Runtime
 #=====================
-FROM python:3.14.0-slim AS runtime
+FROM python:3.13.0-slim AS runtime
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONPATH="/app/src"
 
