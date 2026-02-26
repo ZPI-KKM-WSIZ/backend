@@ -76,16 +76,16 @@ async def build_application_context(env_config: EnvConfig,
     # ============================
     # Load Cassandra configuration
     # ============================
-    # if not cassandra_service:
-    #     cassandra_config = CassandraConfig.from_settings(
-    #         contact_points=await tailscale_service.get_cassandra_contact_points(),
-    #         settings=env_config.CASSANDRA)
-    #     logging.info("Cassandra config loaded")
-    #     logging.debug(f"Cassandra config: {cassandra_config}")
-    #
-    #     cassandra_service = await CassandraService.create(cassandra_config)
-    #     logging.info("CassandraService initialized")
-    #     logging.debug(f"CassandraService: {CassandraService}")
+    if not cassandra_service:
+        cassandra_config = CassandraConfig.from_settings(
+            contact_points=await tailscale_service.get_cassandra_contact_points(),
+            settings=env_config.CASSANDRA)
+        logging.info("Cassandra config loaded")
+        logging.debug(f"Cassandra config: {cassandra_config}")
+
+        cassandra_service = await CassandraService.create(cassandra_config)
+        logging.info("CassandraService initialized")
+        logging.debug(f"CassandraService: {CassandraService}")
 
     # ============================
     # Load Database repositories
