@@ -81,28 +81,55 @@ class MockFederationRepository(MockBaseRepository[Federation], IFederationReposi
     """
     In-memory test double for IFederationRepository.
 
-    Overrides the default key strategy to use `token_id` instead of `id`,
-    matching the Federation model's natural identifier.
+    Now fully compliant with the IFederationRepository interface, supporting
+    lookups by both UUID and token_id.
     """
 
-    async def get_or_create_unassigned(self) -> Federation:
-        pass
-
     async def save(self, entity: Federation) -> Federation:
-        key = getattr(entity, "token_id", None)
-        logging.debug(f"[MOCK SAVE] Would upsert federation: {entity!r} (token_id={key!r})")
+        """Saves or updates a federation using its UUID as the key."""
+        key = entity.id
+        logging.debug(f"[MOCK SAVE] Upserting federation: {entity!r} (id={key!r})")
         self.storage[key] = entity
         return entity
 
-    async def get_by_token_id(self, token_id: str) -> Federation | None:
-        return self.storage.get(token_id)
+    async def get_by_id(self, id: UUID) -> None | Federation:
+        """Get federation by its primary UUID."""
+        return self.storage.get(id)
 
-    async def delete(self, token_id: str) -> None:
-        logging.debug(f"[MOCK DELETE] federation token_id={token_id}")
-        self.storage.pop(token_id, None)
+    async def get_by_token(self, token_id: str) -> None | Federation:
+        """Search the storage for a federation matching the given token_id."""
+        return next(
+            (f for f in self.storage.values() if f.token_id == token_id),
+            None
+        )
+
+    async def delete(self, id: UUID) -> None:
+        """Delete a federation by its UUID."""
+        logging.debug(f"[MOCK DELETE] Removing federation id={id}")
+        self.storage.pop(id, None)
 
     async def get_all(self) -> list[Federation]:
+        """Returns all stored federations."""
         return list(self.storage.values())
+
+    async def get_or_create_unassigned(self) -> Federation:
+        """
+        Retrieves a default 'Unassigned' federation or creates one if it doesn't exist.
+        This is a common pattern for handling entities not yet linked to a specific group.
+        """
+        unassigned_id = UUID("00000000-0000-0000-0000-000000000000")
+
+        if unassigned_id not in self.storage:
+            logging.info("[MOCK] Creating default unassigned federation.")
+            new_fed = Federation(
+                id=unassigned_id,
+                token=[],
+                trust_score=50,
+                name="Unassigned Federation"
+            )
+            self.storage[unassigned_id] = new_fed
+
+        return self.storage[unassigned_id]
 
 
 class MockLocationRepository(MockBaseRepository[Location], ILocationRepository):
