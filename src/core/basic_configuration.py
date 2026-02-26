@@ -30,7 +30,7 @@ class PathConfig:
         object.__setattr__(self, "src_dir", self.root_dir / "src")
         object.__setattr__(self, "core_dir", self.root_dir / "src" / "core")
         object.__setattr__(self, "fastapi_dir", self.root_dir / "src" / "fast_api")
-        object.__setattr__(self, "env_file", self.root_dir / ".env")
+        object.__setattr__(self, "env_file", self.src_dir / ".env")
 
     @classmethod
     def build(cls, root_dir: Path | None = None) -> "PathConfig":
