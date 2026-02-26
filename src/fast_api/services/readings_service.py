@@ -88,9 +88,9 @@ class ReadingsService:
             )
         except Exception as e:
             logging.error(f"Failed to convert SensorReadingDTO to SensorReading: {e}")
-            raise ConversionException(f"Failed to create sensor reading model: {e}",
+            raise ConversionException(f"Failed to create sensor reading model",
                                       convert_from=type(reading),
-                                      convert_to=SensorReading)
+                                      convert_to=SensorReading) from e
 
     async def convert_dto_to_db_model_bulk(self, readings: list[SensorReadingDTO]) -> list[SensorReading]:
         """
@@ -127,7 +127,7 @@ class ReadingsService:
             await self.readings_repo.save(reading)
         except Exception as e:
             logging.error(f"Failed to save reading: {e}")
-            raise ReadingInsertException(message=f"Failed to save reading: {e}", reading=reading) from e
+            raise ReadingInsertException(message=f"Failed to save reading", reading=reading) from e
 
     async def add_reading_to_db_bulk(self, readings: list[SensorReading]) -> None:
         """
@@ -149,7 +149,7 @@ class ReadingsService:
 
         except Exception as e:
             logging.error(f"Failed to save reading: {e}")
-            raise ReadingsBulkInsertException(message=f"Failed to save readings: {e}",
+            raise ReadingsBulkInsertException(message=f"Failed to save readings",
                                               readings=readings, saved_readings=[], exception=e) from e
 
     async def get_readings_by_id(self, sensor_id: uuid.UUID, start_time: None | datetime = None,

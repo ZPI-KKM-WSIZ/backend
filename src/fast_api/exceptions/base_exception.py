@@ -1,3 +1,9 @@
+import traceback
+
+from core.basic_configuration import get_env_config
+from core.environment import Environment
+
+
 class AppBaseException(Exception):
     """
     Base exception class for all application-specific exceptions.
@@ -22,6 +28,7 @@ class AppBaseException(Exception):
         self.message = message
         self.status_code = status_code
         self.type = type(self).__name__
+        self.captured_traceback = traceback.format_exc()
         super().__init__(message)
 
     def to_dict(self):
@@ -31,7 +38,11 @@ class AppBaseException(Exception):
         Returns:
             Dict containing exception type and message.
         """
-        return {
+        env_conf = get_env_config()
+        res = {
             "type": self.type,
             "message": self.message
         }
+        if env_conf.ENVIRONMENT == Environment.DEVELOPMENT:
+            res["stack_trace"] = self.captured_traceback
+        return res

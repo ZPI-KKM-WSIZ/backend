@@ -12,6 +12,7 @@ from contracts.data_models.backend_paginated import PaginatedResponse
 from contracts.data_models.backend_sensors import SensorBoardRegisterDTO, SensorBoardDTOBase, SensorBoardDTO
 
 from fast_api.exceptions.base_exception import AppBaseException
+from fast_api.exceptions.conversion_exceptions import ConversionException
 from fast_api.exceptions.database_exceptions import GenericDatabaseException
 
 
@@ -55,22 +56,28 @@ class SensorsService:
     async def _sensor_dto_to_db(self, sensor_dto: SensorBoardDTO | SensorBoardRegisterDTO) -> tuple[
         SensorBoard, tuple[Location, Federation]]:
 
-        sensor_id = uuid.uuid4()
-        location = await self._get_or_create_location(sensor_dto)
+        try:
+            sensor_id = uuid.uuid4()
+            location = await self._get_or_create_location(sensor_dto)
 
-        if isinstance(sensor_dto, SensorBoardDTO):
-            token = sensor_dto.token
-            federation = await self.federation_repo.get_by_token(token)
-        else:
-            federation = await self._get_federation()
-            token = self._create_token(federation.id)
+            if isinstance(sensor_dto, SensorBoardDTO):
+                token = sensor_dto.token
+                federation = await self.federation_repo.get_by_token(token)
+            else:
+                federation = await self._get_federation()
+                token = self._create_token(federation.id)
 
-        sensor_board = SensorBoard(
-            id=sensor_id,
-            id_location=location.id,
-            status=sensor_dto.status,
-            token=token,
-        )
+            sensor_board = SensorBoard(
+                id=sensor_id,
+                id_location=location.id,
+                status=sensor_dto.status,
+                token=token,
+            )
+        except Exception as e:
+            logging.error(f"Failed to convert SensorBoardDTO to SensorBoard: {e}")
+            raise ConversionException(f"Failed to create sensor board model",
+                                      convert_from=type(sensor_dto),
+                                      convert_to=SensorBoard) from e
 
         return sensor_board, (location, federation)
 
@@ -79,7 +86,7 @@ class SensorsService:
         try:
             await self.sensor_repo.register(entity=db_sensor, location=location, federation=federation)
         except Exception as e:
-            logging.error(f"Failed to register sensor {db_sensor.id}: {e}")
+            logging.error(f"Failed to register sensor {db_sensor.id}")
             raise GenericDatabaseException(message="Sensor registration failed") from e
         return db_sensor
 
