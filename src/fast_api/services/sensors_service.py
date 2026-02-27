@@ -47,7 +47,7 @@ class SensorsService:
 
     @staticmethod
     def _create_token(federation_id: UUID) -> Token:
-        db_token = Token(id_federation=federation_id, token=str(uuid.uuid4()), created_at=datetime.now(UTC))
+        db_token = Token(federation_id=federation_id, token=str(uuid.uuid4()), created_at=datetime.now(UTC))
         return db_token
 
     async def _get_federation(self) -> Federation:
@@ -61,8 +61,8 @@ class SensorsService:
             location = await self._get_or_create_location(sensor_dto)
 
             if isinstance(sensor_dto, SensorBoardDTO):
-                token = sensor_dto.token
-                federation = await self.federation_repo.get_by_token(token)
+                federation = await self.federation_repo.get_by_token(sensor_dto.token)
+                token = self._create_token(federation.id)
             else:
                 federation = await self._get_federation()
                 token = self._create_token(federation.id)
@@ -71,7 +71,7 @@ class SensorsService:
                 id=sensor_id,
                 id_location=location.id,
                 status=sensor_dto.status,
-                token=token,
+                token=token.token,
             )
         except Exception as e:
             logging.error(f"Failed to convert SensorBoardDTO to SensorBoard: {e}")
