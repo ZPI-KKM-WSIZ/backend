@@ -98,6 +98,6 @@ def get_sensors_service(repositories: Repositories = Depends(get_repositories)) 
     Returns:
         A new SensorsService instance.
     """
-    return SensorsService(repositories.sensor_repository, repositories.location_repository,
-                          repositories.federation_repository,
-                          repositories.token_repository)
+    return SensorsService(sensor_repo=repositories.sensor_repository, location_repo=repositories.location_repository,
+                          federation_repo=repositories.federation_repository,
+                          token_repo=repositories.token_repository)
