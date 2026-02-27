@@ -109,7 +109,7 @@ pydantic = ">=2.0"
 type = "git"
 url = "https://github.com/ZPI-KKM-WSIZ/database.git"
 reference = "main"
-resolved_reference = "b30b907cfd823dc10a0e49d066b97a5808654e5b"
+resolved_reference = "a3fd795599994f06ac5176619dfe0f003fc7f8dc"
 subdirectory = "repositories"
 
 [[package]]
@@ -187,7 +187,7 @@ pydantic = ">=2.12.4,<3.0.0"
 type = "git"
 url = "https://github.com/ZPI-KKM-WSIZ/contracts.git"
 reference = "master"
-resolved_reference = "bcde13c651c7df5fc8f4db76cc2b3bd9fb1e586e"
+resolved_reference = "c08d2ebeba03251ef8dc5a828b776e317472ec33"
 
 [[package]]
 name = "fastapi"
