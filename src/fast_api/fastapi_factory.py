@@ -92,11 +92,16 @@ async def build_application_context(env_config: EnvConfig,
     # ============================
     session = cassandra_service.session
     token_repo = TokenRepository(session)
+    location_repo = LocationRepository(session)
+    federation_repo = FederationRepository(session, token_repo)
+    sensor_repo = SensorRepository(session, location_repository=location_repo, federation_repository=federation_repo,
+                                   token_repository=token_repo)
+    readings_repo = ReadingsRepository(session)
     repositories = Repositories(
-        federation_repository=FederationRepository(session, token_repo),
-        location_repository=LocationRepository(session),
-        readings_repository=ReadingsRepository(session),
-        sensor_repository=SensorRepository(session),
+        federation_repository=federation_repo,
+        location_repository=location_repo,
+        readings_repository=readings_repo,
+        sensor_repository=sensor_repo,
         token_repository=token_repo,
     )
     logging.info("Repositories loaded")
