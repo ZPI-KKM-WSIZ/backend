@@ -10,10 +10,17 @@ sensors_router = APIRouter(prefix="/api/v1")
 
 
 @sensors_router.get("/sensors", response_model=list[SensorBoard])
+async def get_sensors(page_size: int, sensors_service: SensorsService = Depends(get_sensors_service)):
+    """ Get sensors based on location"""
+    response = await sensors_service.get_sensors(page_size)
+    return response
+
+
+@sensors_router.get("/sensors/by", response_model=list[SensorBoard])
 async def get_sensors(location: LocationDTO, radius: int, page_size: int, locations_limit: int = 500,
                       sensors_service: SensorsService = Depends(get_sensors_service)):
-    """ Get paginated sensors """
-    response = await sensors_service.get_sensors(location, radius, page_size, locations_limit)
+    """ Get sensors based on location"""
+    response = await sensors_service.get_sensors_by_location(location, radius, page_size, locations_limit)
     return response
 
 

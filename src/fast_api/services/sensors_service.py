@@ -103,7 +103,7 @@ class SensorsService:
         await self.sensor_repo.save(db_sensor)
         return db_sensor
 
-    async def get_sensors(self, location: LocationDTO, radius: int, locations_limit: int, page_size: int) \
+    async def get_sensors_by_location(self, location: LocationDTO, radius: int, locations_limit: int, page_size: int) \
             -> list[SensorBoard]:
 
         location_db = await self._locations_dto_to_db(location, radius, locations_limit)
@@ -116,5 +116,11 @@ class SensorsService:
 
             if len(sensors) > 0:
                 result_sensors = [*result_sensors, *sensors]
+
+        return result_sensors
+
+    async def get_sensors(self, page_size: int) \
+            -> list[SensorBoard]:
+        result_sensors, _ = await self.sensor_repo.get_all(page_size)
 
         return result_sensors
