@@ -133,7 +133,3 @@ configuration.
 | `httpx`                  | `^0.28`  | Async HTTP client (Tailscale API calls)                     |
 | `cassandra-repositories` | git      | CRUD repository abstractions for Cassandra — see note below |
 | `pytest`                 | `^9.0`   | Test framework                                              |
-
-> **Note on `cassandra-repositories`:** This dependency currently resolves to a temporary fork at [
-`TdewT/database`](https://github.com/TdewT/database) that patches issues in the upstream package. It will be replaced by
-> the official upstream release before this project leaves early development.
