@@ -36,7 +36,7 @@ async def send_reading(reading: SensorReadingDTO,
     return reading_data_model
 
 
-@readings_router.get("/readings", response_model=SensorReading, status_code=201)
+@readings_router.get("/readings", response_model=list[SensorReading], status_code=201)
 async def get_latest(sensor_id: uuid.UUID, start_time: None | datetime = None, end_time: None | datetime = None,
                      limit: int = 1000,
                      readings_service: ReadingsService = Depends(get_readings_service)
