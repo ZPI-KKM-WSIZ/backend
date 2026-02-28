@@ -9,11 +9,12 @@ from fast_api.services.sensors_service import SensorsService
 sensors_router = APIRouter(prefix="/api/v1")
 
 
-@sensors_router.get("/sensors", response_model=PaginatedResponse[SensorBoard])
-async def get_sensors(location: LocationDTO, page_size: int, paging_state: str | None = None,
+@sensors_router.get("/sensors", response_model=list[PaginatedResponse[SensorBoard]])
+async def get_sensors(location: LocationDTO, radius: int, page_size: int, locations_limit: int = 500,
+                      paging_state: str | None = None,
                       sensors_service: SensorsService = Depends(get_sensors_service)):
     """ Get paginated sensors """
-    response = await sensors_service.get_sensors(location, page_size, paging_state)
+    response = await sensors_service.get_sensors(location, radius, page_size, locations_limit, paging_state)
     return response
 
 

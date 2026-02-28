@@ -25,16 +25,16 @@ class SensorsService:
         self.federation_repo = federation_repo
         self.token_repo = token_repo
 
-    async def _location_dto_to_db(self, locationDTO: LocationDTO) -> Location:
+    async def _location_dto_to_db(self, locationDTO: LocationDTO, radius: int, limit: int = 1) -> Location:
         db_location = await self.location_repo.find_nearest(target_lat=locationDTO.lat,
                                                             target_lon=locationDTO.long,
-                                                            radius_km=1 / 100, limit=1)
+                                                            radius_km=radius, limit=limit)
         return db_location[0] if db_location else None
 
     async def _get_or_create_location(self, sensor_dto: SensorBoardDTOBase) -> Location:
         sensor_location = sensor_dto.location
 
-        db_location = await self._location_dto_to_db(sensor_location)
+        db_location = await self._location_dto_to_db(sensor_location, radius)
 
         if not db_location:
             db_location = Location(
@@ -53,12 +53,12 @@ class SensorsService:
     async def _get_federation(self) -> Federation:
         return await self.federation_repo.get_or_create_unassigned()
 
-    async def _sensor_dto_to_db(self, sensor_dto: SensorBoardDTO | SensorBoardRegisterDTO) -> tuple[
+    async def _sensor_dto_to_db(self, sensor_dto: SensorBoardDTO | SensorBoardRegisterDTO, radius: int) -> tuple[
         SensorBoard, tuple[Location, Federation]]:
 
         try:
             sensor_id = uuid.uuid4()
-            location = await self._get_or_create_location(sensor_dto)
+            location = await self._get_or_create_location(sensor_dto, radius)
 
             if isinstance(sensor_dto, SensorBoardDTO):
                 federation = await self.federation_repo.get_by_token(sensor_dto.token)
@@ -82,7 +82,7 @@ class SensorsService:
         return sensor_board, (location, federation)
 
     async def register_sensor(self, sensor_register_dto: SensorBoardRegisterDTO) -> SensorBoard:
-        db_sensor, (location, federation) = await self._sensor_dto_to_db(sensor_register_dto)
+        db_sensor, (location, federation) = await self._sensor_dto_to_db(sensor_register_dto, radius=int(1 / 100))
         try:
             await self.sensor_repo.register(entity=db_sensor, location=location, federation=federation)
         except Exception as e:
@@ -95,12 +95,13 @@ class SensorsService:
         if existing is None:
             raise AppBaseException('Invalid token', 401)
 
-        db_sensor, _ = await self._sensor_dto_to_db(sensor_dto)
+        db_sensor, _ = await self._sensor_dto_to_db(sensor_dto, radius=int(1 / 100))
         await self.sensor_repo.save(db_sensor)
         return db_sensor
 
-    async def get_sensors(self, location: LocationDTO, page_size: int, cursor: str | None = None) \
-            -> PaginatedResponse[SensorBoard]:
+    async def get_sensors(self, location: LocationDTO, radius: int, locations_limit: int, page_size: int,
+                          cursor: str | None = None) \
+            -> list[PaginatedResponse[SensorBoard]]:
 
         location_db = await self._location_dto_to_db(location)
         if location_db is None:
