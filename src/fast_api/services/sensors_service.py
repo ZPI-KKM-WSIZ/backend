@@ -1,4 +1,3 @@
-import base64
 import logging
 import uuid
 from datetime import UTC
@@ -8,7 +7,6 @@ from uuid import UUID
 from contracts import ISensorRepository, ILocationRepository, SensorBoard, IFederationRepository, \
     ITokenRepository, Token, Location, Federation
 from contracts.data_models.backend_location import LocationDTO
-from contracts.data_models.backend_paginated import PaginatedResponse
 from contracts.data_models.backend_sensors import SensorBoardRegisterDTO, SensorBoardDTOBase, SensorBoardDTO
 
 from fast_api.exceptions.base_exception import AppBaseException
@@ -31,7 +29,13 @@ class SensorsService:
                                                             radius_km=radius, limit=limit)
         return db_location[0] if db_location else None
 
-    async def _get_or_create_location(self, sensor_dto: SensorBoardDTOBase) -> Location:
+    async def _locations_dto_to_db(self, locationDTO: LocationDTO, radius: int, limit: int = 1) -> list[Location]:
+        db_locations = await self.location_repo.find_nearest(target_lat=locationDTO.lat,
+                                                             target_lon=locationDTO.long,
+                                                             radius_km=radius, limit=limit)
+        return db_locations
+
+    async def _get_or_create_location(self, sensor_dto: SensorBoardDTOBase, radius: int) -> Location:
         sensor_location = sensor_dto.location
 
         db_location = await self._location_dto_to_db(sensor_location, radius)
@@ -99,25 +103,18 @@ class SensorsService:
         await self.sensor_repo.save(db_sensor)
         return db_sensor
 
-    async def get_sensors(self, location: LocationDTO, radius: int, locations_limit: int, page_size: int,
-                          cursor: str | None = None) \
-            -> list[PaginatedResponse[SensorBoard]]:
+    async def get_sensors(self, location: LocationDTO, radius: int, locations_limit: int, page_size: int) \
+            -> list[SensorBoard]:
 
-        location_db = await self._location_dto_to_db(location)
+        location_db = await self._locations_dto_to_db(location, radius, locations_limit)
         if location_db is None:
             raise AppBaseException('Location not found', 404)
 
-        # decode cursor from base64 string back to bytes for Cassandra
-        paging_state = base64.b64decode(cursor) if cursor else None
+        result_sensors = []
+        for location in location_db:
+            sensors = await self.sensor_repo.get_by_location(location.id, page_size)
 
-        sensors, next_paging_state = await self.sensor_repo.get_paginated(
-            location_db.id, page_size, paging_state
-        )
+            if len(sensors) > 0:
+                result_sensors = [*result_sensors, *sensors]
 
-        # encode bytes cursor to base64 string for the client
-        next_cursor = base64.b64encode(next_paging_state).decode() if next_paging_state else None
-
-        return PaginatedResponse(
-            data=sensors,
-            next_cursor=next_cursor
-        )
+        return result_sensors

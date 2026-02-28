@@ -1,4 +1,4 @@
-from contracts import SensorBoard, PaginatedResponse
+from contracts import SensorBoard
 from contracts.data_models.backend_location import LocationDTO
 from contracts.data_models.backend_sensors import SensorBoardRegisterDTO, SensorBoardDTO
 from fastapi import APIRouter, Depends
@@ -9,12 +9,11 @@ from fast_api.services.sensors_service import SensorsService
 sensors_router = APIRouter(prefix="/api/v1")
 
 
-@sensors_router.get("/sensors", response_model=list[PaginatedResponse[SensorBoard]])
+@sensors_router.get("/sensors", response_model=list[SensorBoard])
 async def get_sensors(location: LocationDTO, radius: int, page_size: int, locations_limit: int = 500,
-                      paging_state: str | None = None,
                       sensors_service: SensorsService = Depends(get_sensors_service)):
     """ Get paginated sensors """
-    response = await sensors_service.get_sensors(location, radius, page_size, locations_limit, paging_state)
+    response = await sensors_service.get_sensors(location, radius, page_size, locations_limit)
     return response
 
 
