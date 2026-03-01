@@ -1,8 +1,10 @@
 from contracts import SensorBoard
 from contracts.data_models.backend_location import LocationDTO
+from contracts.data_models.backend_readings import SensorRegisterResponseDTO
 from contracts.data_models.backend_sensors import SensorBoardRegisterDTO, SensorBoardDTO
 from fastapi import APIRouter, Depends
 
+from core.basic_configuration import get_env_config
 from fast_api.dependencies import get_sensors_service
 from fast_api.services.sensors_service import SensorsService
 
@@ -16,7 +18,7 @@ async def get_sensors(page_size: int, sensors_service: SensorsService = Depends(
     return response
 
 
-@sensors_router.get("/sensors/by", response_model=list[SensorBoard])
+@sensors_router.get("/sensors/by-location", response_model=list[SensorBoard])
 async def get_sensors(location: LocationDTO, radius: int, page_size: int, locations_limit: int = 500,
                       sensors_service: SensorsService = Depends(get_sensors_service)):
     """ Get sensors based on location"""
@@ -32,9 +34,11 @@ async def sensor_register(sensor_dto: SensorBoardDTO,
     return added_record
 
 
-@sensors_router.post("/sensors/register", response_model=SensorBoard)
+@sensors_router.post("/sensors/register", response_model=SensorRegisterResponseDTO)
 async def sensor_register(sensor_register_dto: SensorBoardRegisterDTO,
                           sensors_service: SensorsService = Depends(get_sensors_service)):
     """ Register sensor """
     added_record = await sensors_service.register_sensor(sensor_register_dto)
-    return added_record
+    server_url = get_env_config().API_BASE_URL + "api/v1/sensors"
+    response = SensorRegisterResponseDTO(**added_record.model_dump(), server_url=server_url)
+    return response

@@ -1,6 +1,6 @@
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, UTC
 
 from contracts import SensorReadingDTO, SensorReading, IReadingsRepository, ISensorRepository, ILocationRepository
 
@@ -75,7 +75,7 @@ class ReadingsService:
             return SensorReading(
                 id_sensor=sensor.id,
                 id_location=location.id,
-                created_at=reading.created_at,
+                created_at=datetime.now(UTC),
                 token=reading.token,
                 co2=reading.sensors.co2,
                 tvoc=reading.sensors.tvoc,
@@ -122,6 +122,12 @@ class ReadingsService:
         Raises:
             ReadingInsertException: If the reading cannot be saved.
         """
+        sensor = await self.sensor_repo.get_by_id(reading.id_sensor)
+        sensor_location = await self.location_repository.get_by_id(sensor.id_location)
+        reading_location = await self.location_repository.get_by_id(reading.id_location)
+        if sensor_location != reading_location:
+            logging.debug(f"Sensor location: {sensor_location}, reading location: {reading_location}")
+            logging.info("Updating reading location to match sensor location")
 
         try:
             await self.readings_repo.save(reading)
