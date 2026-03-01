@@ -1,6 +1,7 @@
 # ZPI Air Quality — Backend Node
 
-> [!WARNING] **Early Development** — APIs, configuration, and documentation are actively changing.
+> [!WARNING]
+> **Early Development** — APIs, configuration, and documentation are actively changing.
 
 A stateless FastAPI backend node for the ZPI Air Quality monitoring system. It ingests sensor readings from registered
 devices, persists them to a distributed Cassandra database, and serves a REST API consumed by the frontend. Built for
@@ -113,7 +114,8 @@ bash compose.test.sh
 docker compose -f docker-compose.dev.yaml up
 ```
 
-> [!NOTE] `compose.prod.sh` and `compose.test.sh` automatically generate a short UUID for `SERVER_ID` and derive
+> [!NOTE]
+> `compose.prod.sh` and `compose.test.sh` automatically generate a short UUID for `SERVER_ID` and derive
 `BACKEND_HOSTNAME` from it (`zpi-backend-<uuid>`). All other variables must be set in your environment or a
 > root-level `.env` before running — see Configuration.
 

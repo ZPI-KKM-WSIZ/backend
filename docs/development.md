@@ -8,7 +8,8 @@ poetry install
 
 ## Running Tests
 
-> ⚠️ Test suites are scaffolded but not yet implemented.
+> [!WARNING]
+> Test suites are scaffolded but not yet implemented.
 
 ```bash
 pytest
