@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from fast_api.api.v1.endpoints.health import health_router
+from fast_api.api.v1.endpoints.locations import locations_router
 from fast_api.api.v1.endpoints.readings import readings_router
 from fast_api.api.v1.endpoints.sensors import sensors_router
 
@@ -18,3 +19,4 @@ def health_check():
 router.include_router(health_router)
 router.include_router(readings_router)
 router.include_router(sensors_router)
+router.include_router(locations_router)
