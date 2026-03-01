@@ -39,6 +39,6 @@ async def sensor_register(sensor_register_dto: SensorBoardRegisterDTO,
                           sensors_service: SensorsService = Depends(get_sensors_service)):
     """ Register sensor """
     added_record = await sensors_service.register_sensor(sensor_register_dto)
-    server_url = get_env_config().API_BASE_URL + "api/v1/sensors"
+    server_url = get_env_config().API_BASE_URL + "api/v1/readings"
     response = SensorRegisterResponseDTO(**added_record.model_dump(), server_url=server_url)
     return response
