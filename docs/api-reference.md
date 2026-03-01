@@ -2,7 +2,8 @@
 
 Base path: `/api/v1`
 
-> ⚠️ This backend is under active development. Additional endpoints (federation and others) are not yet available.
+> [!WARNING] This backend is under active development. Additional endpoints (federation and others) are not yet
+> available.
 
 ---
 
@@ -71,7 +72,7 @@ Retrieve sensor readings for a given sensor, with optional time range filtering.
 
 **Response `201 Created`:** List of `SensorReading` models
 
-> ℹ️ The `201` status code is set explicitly in the route decorator. This is likely a bug — a `GET` endpoint
+> [!NOTE] The `201` status code is set explicitly in the route decorator. This is likely a bug — a `GET` endpoint
 > conventionally returns `200 OK`.
 
 ---

@@ -10,7 +10,7 @@ Nested groups (`TAILSCALE`, `CASSANDRA`) are populated via the double-underscore
 
 ## `src/.env` — App-Level Settings
 
-> 📋 A full `src/.env.example` reference is coming. The tables below cover all supported variables.
+> A full `src/.env.example` reference is coming. The tables below cover all supported variables.
 
 ### Identity & API
 
