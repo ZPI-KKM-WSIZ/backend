@@ -1,6 +1,6 @@
 # ZPI Air Quality — Backend Node
 
-> ⚠️ **Early Development** — APIs, configuration, and documentation are actively changing.
+> [!WARNING] **Early Development** — APIs, configuration, and documentation are actively changing.
 
 A stateless FastAPI backend node for the ZPI Air Quality monitoring system. It ingests sensor readings from registered
 devices, persists them to a distributed Cassandra database, and serves a REST API consumed by the frontend. Built for
@@ -12,17 +12,18 @@ discovery via Tailscale.
 ## Architecture
 
 ```
-[Sensors] ──┐
-            ▼
-     [Public Domain] <───> [Frontend]
-            │
-     ┌──────┴──────┐
-     ▼             ▼
-Backend Node   Backend Node   ← stateless, replicable
-     └──────┬──────┘
-            │  [Tailscale VPN]
-            ▼
-   [Cassandra Cluster]
+   [Sensors] ──┐
+               ▼
+        [Public Domain] <───> [Frontend]
+               │
+        ┌──────┴──────┐
+        ▼             ▼
+  Backend Node   Backend Node ← stateless, replicable
+        └──────┬──────┘
+               │ [Tailscale VPN]
+               ▼
+      [Cassandra Cluster]
+
 ```
 
 **Data flow:**
@@ -43,39 +44,42 @@ replicas remain identifiable.
 ```
 .
 ├── src/
-│   ├── main.py                          # Entry point
-│   ├── core/                            # Infrastructure layer
-│   │   ├── bootstrap_utils.py           # App version resolution from pyproject.toml
-│   │   ├── cassandra_service.py         # Cassandra cluster connection & session lifecycle
-│   │   ├── database_repositories.py     # Repository container for dependency injection
-│   │   ├── env_configuration.py         # Pydantic settings — env vars + .env file
-│   │   ├── environment.py               # Environment enum (PRODUCTION / DEVELOPMENT)
-│   │   ├── identity_configuration.py    # Server identity dataclass
-│   │   ├── logger_configuration.py      # Coloured logger (level adapts to environment)
-│   │   ├── network_utils.py             # Async retry with exponential backoff + jitter
-│   │   └── tailscale_service.py         # Tailscale API client for Cassandra node discovery
-│   └── fast_api/                        # API layer
-│       ├── api/v1/endpoints/            # Route handlers (health, readings, ...)
-│       ├── exceptions/                  # Structured app exceptions mapped to HTTP status codes
-│       ├── services/                    # Business logic (reading ingestion, identity)
-│       ├── application_context.py       # App-wide shared state
-│       ├── dependencies.py              # FastAPI dependency injection providers
-│       ├── exception_handler.py         # Global exception → HTTP response mapping
-│       ├── fastapi_factory.py           # Application factory / bootstrapping
-│       ├── fastapi_settings.py          # FastAPI-specific settings
-│       └── router.py                    # Top-level router registration
+│ ├── main.py # Entry point
+│ ├── core/ # Infrastructure layer
+│ │ ├── basic_configuration.py # Pydantic settings — env vars + .env file
+│ │ ├── bootstrap_utils.py # App version resolution from pyproject.toml
+│ │ ├── cassandra_service.py # Cassandra cluster connection & session lifecycle
+│ │ ├── database_repositories.py # Repository container for dependency injection
+│ │ ├── environment.py # Environment enum (PRODUCTION / DEVELOPMENT)
+│ │ ├── identity_configuration.py # Server identity dataclass
+│ │ ├── location_utils.py # Reverse geocoding via geopy/Nominatim
+│ │ ├── logger_configuration.py # Coloured logger (level adapts to environment)
+│ │ ├── network_utils.py # Async retry with exponential backoff + jitter
+│ │ └── tailscale_service.py # Tailscale API client for Cassandra node discovery
+│ └── fast_api/ # API layer
+│ ├── api/v1/endpoints/ # Route handlers (health, readings, ...)
+│ ├── exceptions/ # Structured app exceptions mapped to HTTP status codes
+│ ├── services/ # Business logic (reading ingestion, identity)
+│ ├── application_context.py # App-wide shared state
+│ ├── dependencies.py # FastAPI dependency injection providers
+│ ├── exception_handler.py # Global exception → HTTP response mapping
+│ ├── fastapi_factory.py # Application factory / bootstrapping
+│ ├── fastapi_settings.py # FastAPI-specific settings
+│ └── router.py # Top-level router registration
 ├── tests/
-│   ├── e2e/                             # End-to-end tests
-│   ├── unit/core/                       # Unit tests — infrastructure layer
-│   ├── unit/fast_api/                   # Unit tests — API layer
-│   ├── unit/integration/                # Integration tests (API + DB flow)
-│   └── mocks/                           # Shared test doubles
-├── docs/                                # Detailed documentation
+│ ├── e2e/ # End-to-end tests
+│ ├── unit/core/ # Unit tests — infrastructure layer
+│ ├── unit/fast_api/ # Unit tests — API layer
+│ ├── unit/integration/ # Integration tests (API + DB flow)
+│ └── mocks/ # Shared test doubles
+├── docs/ # Detailed documentation
+├── scripts/
+│ └── ts-healthcheck.sh # Tailscale peer connectivity healthcheck
 ├── docker-compose.dev.yaml
 ├── docker-compose.test.yaml
 ├── docker-compose.prod.yaml
-├── compose.test.sh
-├── compose.prod.sh
+├── compose.test.sh # Launches test stack (auto-generates SERVER_ID)
+├── compose.prod.sh # Launches prod stack (auto-generates SERVER_ID)
 ├── Dockerfile
 └── pyproject.toml
 ```
@@ -85,7 +89,7 @@ replicas remain identifiable.
 ## Prerequisites
 
 - **Docker** and **Docker Compose** v2+
-- **Python 3.13+** with **Poetry** (local development only)
+- **Python 3.13** with **Poetry** (local development only)
 - A **Tailscale** account with an OAuth client (`devices:read` scope)
 - A **Cloudflare Tunnel** token (production / test deployments)
 - A **Cassandra** node running on your Tailscale network, tagged appropriately —
@@ -96,15 +100,22 @@ replicas remain identifiable.
 ## Quick Start
 
 ```bash
-# Production
+# Build the Docker image
+docker build --secret="id=env,src=.env" -t zpi-kkm-backend:${APP_VERSION} .
+
+# Production — auto-generates SERVER_ID and BACKEND_HOSTNAME
 bash compose.prod.sh
 
-# Test environment
+# Test environment — auto-generates SERVER_ID and BACKEND_HOSTNAME
 bash compose.test.sh
 
 # Dev (local, no tunnel)
 docker compose -f docker-compose.dev.yaml up
 ```
+
+> [!NOTE] `compose.prod.sh` and `compose.test.sh` automatically generate a short UUID for `SERVER_ID` and derive
+`BACKEND_HOSTNAME` from it (`zpi-backend-<uuid>`). All other variables must be set in your environment or a
+> root-level `.env` before running — see Configuration.
 
 See the [Deployment Guide](docs/deployment.md) for environment variables, Tailscale setup, and Cloudflare Tunnel
 configuration.
@@ -113,12 +124,12 @@ configuration.
 
 ## Documentation
 
-| Document                                 | Description                                                     |
-|------------------------------------------|-----------------------------------------------------------------|
-| [Configuration](docs/configuration.md)   | All environment variables and `.env` settings                   |
-| [Deployment Guide](docs/deployment.md)   | Docker Compose workflows, Tailscale and Cloudflare Tunnel setup |
-| [API Reference](docs/api-reference.md)   | Available endpoints                                             |
-| [Development Guide](docs/development.md) | Local setup and testing                                         |
+| Document          | Description                                                     |
+|-------------------|-----------------------------------------------------------------|
+| Configuration     | All environment variables and `.env` settings                   |
+| Deployment Guide  | Docker Compose workflows, Tailscale and Cloudflare Tunnel setup |
+| API Reference     | Available endpoints                                             |
+| Development Guide | Local setup and testing                                         |
 
 ---
 
@@ -131,5 +142,6 @@ configuration.
 | `pydantic-settings`      | `^2.12`  | Settings and environment variable management                |
 | `colorlog`               | `^6.10`  | Coloured log output                                         |
 | `httpx`                  | `^0.28`  | Async HTTP client (Tailscale API calls)                     |
+| `geopy`                  | `^2.4`   | Reverse geocoding for sensor location resolution            |
 | `cassandra-repositories` | git      | CRUD repository abstractions for Cassandra — see note below |
 | `pytest`                 | `^9.0`   | Test framework                                              |

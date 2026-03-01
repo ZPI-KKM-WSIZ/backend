@@ -2,6 +2,12 @@
 
 ## Running the Application
 
+### Build the Docker image:
+
+```bash
+docker build --secret="id=env,src=.env" -t=zpi-kkm-backend . 
+```
+
 ### Production
 
 ```bash
@@ -21,15 +27,13 @@ bash compose.test.sh
 Identical stack but uses `tag:test` on the Tailscale container and a separate Cloudflare Tunnel token. This isolates the
 test environment from production Cassandra nodes while keeping the same deployment topology.
 
-### Development (local, no tunnel)
+### Development (local)
 
 ```bash
-docker compose -f docker-compose.dev.yaml up
+python3 ./src/main.py
 ```
 
-Runs only the backend container with port `8000` mapped to the host. No Tailscale sidecar or Cloudflared container —
-intended for offline testing of the containerised image. The app still requires valid Tailscale OAuth credentials to
-discover Cassandra nodes at startup.
+Pure python for initial testing.
 
 ---
 

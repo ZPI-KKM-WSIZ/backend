@@ -1,7 +1,8 @@
 # Cloudflare Tunnel
 
 Each deployment includes a `cloudflared` container sidecar. Configure your tunnel in the Cloudflare dashboard to point
-to `http://tailnet:8000` — the tailnet container bridges both cloudflared and backend networks, so `tailnet` resolves
+to `http://tailscale:8000` — the tailnet container bridges both cloudflared and backend networks, so `tailscale`
+resolves
 correctly inside the tunnel container.
 
 The only required step on the deployment side is providing a valid `CLOUDFLARE_TUNNEL_TOKEN`. Multiple nodes each carry

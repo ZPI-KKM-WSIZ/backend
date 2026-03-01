@@ -8,6 +8,7 @@ nodes on your tailnet **must carry the correct ACL tags**.
 | Tag                  | Purpose                                       |
 |----------------------|-----------------------------------------------|
 | `tag:cassandra-node` | Marks the device as a Cassandra instance      |
+| `tag:backend`        | Marks the device as a backend instance        |
 | `tag:prod`           | Scopes the node to the production environment |
 | `tag:test`           | Scopes the node to the test environment       |
 

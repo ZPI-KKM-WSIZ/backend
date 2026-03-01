@@ -4,7 +4,6 @@
 
 ```bash
 poetry install
-poetry shell
 ```
 
 ## Running Tests
