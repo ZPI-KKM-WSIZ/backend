@@ -15,7 +15,13 @@ services:
       - NET_ADMIN
       - SYS_MODULE
     networks:
-      - zpi-node-net
+      - zpi-backend-node-net
+    healthcheck:
+      test: [ "CMD", "sh", "/usr/local/bin/ts-healthcheck.sh" ]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 15s
 
 
   backend:
@@ -23,17 +29,21 @@ services:
     image: zpi-kkm-backend:${APP_VERSION}
     container_name: zpi-backend-prod
     restart: always
-    env_file: ./src/.env
     environment:
       - ENVIRONMENT=${ENVIRONMENT}
       - API_BASE_URL=${API_BASE_URL}
-      - TAILNET_ID=${TAILNET_ID}
-      - TAILSCALE_API_CLIENT_ID=${TAILSCALE_API_CLIENT_ID}
-      - TAILSCALE_API_CLIENT_SECRET=${TAILSCALE_API_CLIENT_SECRET}
+      - TAILSCALE__TAILNET_ID=${TAILSCALE__TAILNET_ID}
+      - TAILSCALE__TAILSCALE_API_CLIENT_ID=${TAILSCALE__TAILSCALE_API_CLIENT_ID}
+      - TAILSCALE__TAILSCALE_API_CLIENT_SECRET=${TAILSCALE__TAILSCALE_API_CLIENT_SECRET}
       - SERVER_ID=${SERVER_ID}
-    network_mode: "service:tailscale"
+      - CASSANDRA__LOCAL_DATACENTER=${CASSANDRA__LOCAL_DATACENTER}
+      - CASSANDRA__USERNAME=${CASSANDRA__USERNAME}
+      - CASSANDRA__PASSWORD=${CASSANDRA__PASSWORD}
+      - CASSANDRA__KEYSPACE=${CASSANDRA__KEYSPACE}
+    network_mode: service:tailscale
     depends_on:
-      - tailscale
+      tailscale:
+        condition: service_healthy
 
   cloudflared:
     image: cloudflare/cloudflared:latest
@@ -43,10 +53,16 @@ services:
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     networks:
-      - zpi-node-net
+      - zpi-backend-node-net
     depends_on:
-      - backend
+      tailscale:
+        condition: service_healthy
+      backend:
+        condition: service_started
 
 networks:
-  zpi-node-net:
+  zpi-backend-node-net:
     driver: bridge
+
+volumes:
+  tailscale-data:
